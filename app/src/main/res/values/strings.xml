@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Charts</string>
+
+    <string name="barchart_tipbar_text" formatted="false">%s月%s日  %s度</string>
+</resources>

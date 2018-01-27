@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="colorWhite_60">#99FFFFFF</color>
+
+    <color name="curve_chart_unit_color">#9affffff</color>
+    <color name="curve_chart_coordinate_color">#33ffffff</color>
+    <color name="curve_chart_gradient_color1">#00ffffff</color>
+    <color name="curve_chart_gradient_color2">#10ffffff</color>
+
+    <color name="bar_chart_bar_select_color">#b3ffffff</color>
+    <color name="bar_chart_bar_unselect_color">#33ffffff</color>
+
+    <color name="radar_graph_circle_color">#3300adbc</color>
+    <color name="radar_graph_score_color">#ffffffff</color>
+    <color name="radar_graph_default_text_color">#9affffff</color>
+
+    <color name="line_chart_line_color">#9affffff</color>
+    <color name="line_chart_emph_color">#ffffffff</color>
+    <color name="barchart_click_start_color">#ffa0e1e6</color>
+    <color name="barchart_click_end_color">#ff00adbc</color>
+</resources>

@@ -1,0 +1,15 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <dimen name="radar_graph_text_size">20sp</dimen>
+    <dimen name="radar_graph_text_margin">20dp</dimen>
+
+    <dimen name="battery_chart_unit_textsize">20sp</dimen>
+    <dimen name="line_chart_cyvalue_textsize">24sp</dimen>
+
+    <dimen name="bar_chart_tipbar_textsize">20sp</dimen>
+
+    <dimen name="bar_chart_bar_width">4dp</dimen>
+</resources>
