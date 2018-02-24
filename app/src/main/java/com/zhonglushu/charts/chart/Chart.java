@@ -83,8 +83,6 @@ public class Chart extends FrameLayout {
     private void init() {
         coordinate = new Coordinate(getContext());
         dashPathEffect = new DashPathEffect(new float[]{20, 4}, 0);
-
-        scrollCallback = new DefaultScrollCallback();
     }
 
     @Override
@@ -371,6 +369,10 @@ public class Chart extends FrameLayout {
 
     public void setScrollMode(ScrollMode scrollMode) {
         this.scrollMode = scrollMode;
+        if (this.scrollMode == ScrollMode.DEFAULT) {
+            scrollCallback = null;
+            scrollCallback = new DefaultScrollCallback();
+        }
     }
 
     /**
@@ -380,7 +382,7 @@ public class Chart extends FrameLayout {
     public boolean inDefaultScrollMode() {
         if (coordPoints != null && coordPoints.length > 0) {
             if (totalCoordPoints != null && totalCoordPoints.length > coordPoints.length) {
-                if (this.scrollMode == ScrollMode.DEFAULT || this.scrollMode == ScrollMode.CUSTOM) {
+                if (this.scrollMode == ScrollMode.DEFAULT) {
                     return true;
                 }
             } else {
@@ -1149,12 +1151,12 @@ public class Chart extends FrameLayout {
         float scrollX = 0.0f;
         ValueAnimator valueAnimator = null;
         float MAX_VELX = 2500;
-        boolean inScrollMode = false;
+        boolean inDefaultScrollMode = false;
         float perUnitLenX = 0.0f;
 
         @Override
         public void onDownCallback(MotionEvent e) {
-            inScrollMode = inDefaultScrollMode();
+            inDefaultScrollMode = inDefaultScrollMode();
             cancelFlingAnim();
             startIndex = scrollIndex[0];
             endIndex = scrollIndex[1];
@@ -1166,7 +1168,7 @@ public class Chart extends FrameLayout {
 
         @Override
         public void onScrollCallback(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (inScrollMode && pointsCount > 1) {
+            if (inDefaultScrollMode && pointsCount > 1) {
                 if (scrollCallback != null) {
                     handleScrollEvent(e2.getX());
                 }
@@ -1175,7 +1177,7 @@ public class Chart extends FrameLayout {
 
         @Override
         public void onFlingCallback(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (inScrollMode && pointsCount > 0) {
+            if (inDefaultScrollMode && pointsCount > 0) {
                 float tempVelocityX = velocityX;
                 if (Math.abs(velocityX) > MAX_VELX) {
                     if (velocityX < 0) {
@@ -1207,7 +1209,7 @@ public class Chart extends FrameLayout {
 
         @Override
         public void onUpCallback(MotionEvent e) {
-            if (inScrollMode && pointsCount > 0) {
+            if (inDefaultScrollMode && pointsCount > 0) {
                 float x = e.getX();
                 float percent = (x - downX) / getCoordinate().getLenCx();
                 float originDelta = (pointsCount - 1) * Math.abs(percent);

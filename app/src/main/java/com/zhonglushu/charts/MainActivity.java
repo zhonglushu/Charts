@@ -91,6 +91,27 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        barChart.setScrollCallback(new Chart.ScrollCallback() {
+            @Override
+            public void onDownCallback(MotionEvent e) {
+
+            }
+
+            @Override
+            public void onScrollCallback(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+            }
+
+            @Override
+            public void onFlingCallback(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
+            }
+
+            @Override
+            public void onUpCallback(MotionEvent e) {
+
+            }
+        });
         barChart.getCoordinate().setCyUnitValueFunc(new Chart.Coordinate.CustomUnitValueFunc() {
             @Override
             public String[] unitValues(Chart.PointD[] pointDs, double[] range) {
