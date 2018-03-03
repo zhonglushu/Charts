@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FF020D16"
+    android:orientation="vertical"
     tools:context="com.zhonglushu.charts.MainActivity">
 
     <com.zhonglushu.charts.chart.BarChart
-        android:id="@+id/bar_chart"
+        android:id="@+id/page_bar_chart"
         android:layout_width="match_parent"
         android:layout_height="287dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp" />
-</RelativeLayout>
+
+    <com.zhonglushu.charts.chart.BarChart
+        android:id="@+id/default_bar_chart"
+        android:layout_width="match_parent"
+        android:layout_height="287dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp" />
+</LinearLayout>

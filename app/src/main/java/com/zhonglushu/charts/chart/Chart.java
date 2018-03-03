@@ -126,6 +126,14 @@ public class Chart extends FrameLayout {
         return coordinate;
     }
 
+    public float getXCoordinateLen() {
+        return coordinate.getLenCx();
+    }
+
+    public float getYCoordinateLen() {
+        return coordinate.getLenCy();
+    }
+
     public void setCoordPoints(PointD[] coordPoints) {
         this.coordPoints = coordPoints;
         updateRange();
@@ -241,7 +249,6 @@ public class Chart extends FrameLayout {
         int count = getChildCount();
         for (int i = 0; i < count; i++) {
             if(getChildAt(i) instanceof ChartView) {
-                Log.i("Rambo", "Chart onLayout() getChildAt(i) instanceof ChartView");
                 float chartLeft = 0.0f;
                 float chartRight = 0.0f;
                 if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
@@ -251,7 +258,8 @@ public class Chart extends FrameLayout {
                     chartLeft = getMaginEndX();
                     chartRight = getMaginStartX();
                 }
-                getChildAt(i).layout((int)chartLeft, top, (int)chartRight, bottom);
+                Log.i("Rambo222", "Chart onLayout() chartLeft = " + chartLeft + ", top = " + top + ", chartRight = " + chartRight + ", bottom = " + bottom);
+                getChildAt(i).layout((int)chartLeft, 0, (int)chartRight, bottom - top);
                 break;
             }
         }
@@ -370,30 +378,14 @@ public class Chart extends FrameLayout {
     public void setScrollMode(ScrollMode scrollMode) {
         this.scrollMode = scrollMode;
         if (this.scrollMode == ScrollMode.DEFAULT) {
-            scrollCallback = null;
             scrollCallback = new DefaultScrollCallback();
         }
     }
 
     /**
-     * 默认滚动模式需要设置所有所标点的数组
+     * 滚动模式需要设置所有所标点的数组
      * @return
      */
-    public boolean inDefaultScrollMode() {
-        if (coordPoints != null && coordPoints.length > 0) {
-            if (totalCoordPoints != null && totalCoordPoints.length > coordPoints.length) {
-                if (this.scrollMode == ScrollMode.DEFAULT) {
-                    return true;
-                }
-            } else {
-                Log.e("Rambo", "Points array has not enough points, totalCoordPoints = " + totalCoordPoints);
-            }
-        } else {
-            Log.e("Rambo", "Points array is empty, coordPoints = " + coordPoints);
-        }
-        return false;
-    }
-
     public boolean inScrollMode() {
         if (coordPoints != null && coordPoints.length > 0) {
             if (totalCoordPoints != null && totalCoordPoints.length > coordPoints.length) {
@@ -415,6 +407,14 @@ public class Chart extends FrameLayout {
 
     public PointD[] getTotalCoordPoints() {
         return totalCoordPoints;
+    }
+
+    public int getTotalPointCount() {
+        if (totalCoordPoints == null) {
+            return 0;
+        } else {
+            return totalCoordPoints.length;
+        }
     }
 
     public static class Coordinate {
@@ -896,6 +896,9 @@ public class Chart extends FrameLayout {
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
+            if (getCoordPoints() == null || getCoordPoints().length <= 0) {
+                return;
+            }
             drawXCoord(canvas);
             onDrawChart(canvas);
         }
@@ -1051,6 +1054,9 @@ public class Chart extends FrameLayout {
 
         @Override
         public boolean onTouchEvent(MotionEvent event) {
+            if (getCoordPoints() == null || getCoordPoints().length <= 0) {
+                return true;
+            }
             if (gestureDetector.onTouchEvent(event)) {
 
             } else {
@@ -1151,33 +1157,29 @@ public class Chart extends FrameLayout {
         float scrollX = 0.0f;
         ValueAnimator valueAnimator = null;
         float MAX_VELX = 2500;
-        boolean inDefaultScrollMode = false;
         float perUnitLenX = 0.0f;
 
         @Override
         public void onDownCallback(MotionEvent e) {
-            inDefaultScrollMode = inDefaultScrollMode();
             cancelFlingAnim();
             startIndex = scrollIndex[0];
             endIndex = scrollIndex[1];
             pointsCount = scrollIndex[1] - scrollIndex[0] + 1;
             downX = e.getX();
             downY = e.getY();
-            perUnitLenX = getCoordinate().getLenCx() / (pointsCount - 1);
+            perUnitLenX = getXCoordinateLen() / (pointsCount - 1);
         }
 
         @Override
         public void onScrollCallback(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (inDefaultScrollMode && pointsCount > 1) {
-                if (scrollCallback != null) {
-                    handleScrollEvent(e2.getX());
-                }
+            if (pointsCount > 1) {
+                handleScrollEvent(e2.getX());
             }
         }
 
         @Override
         public void onFlingCallback(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (inDefaultScrollMode && pointsCount > 0) {
+            if (pointsCount > 0) {
                 float tempVelocityX = velocityX;
                 if (Math.abs(velocityX) > MAX_VELX) {
                     if (velocityX < 0) {
@@ -1189,10 +1191,10 @@ public class Chart extends FrameLayout {
                 float percentVx = tempVelocityX / MAX_VELX;
                 float startX = e2.getX();
 
-                float lenX = getCoordinate().getLenCx() * 2 / 3;
+                float lenX = getXCoordinateLen() * 2 / 3;
                 float deltaX = percentVx * lenX;
                 float endDeltaX = startX + deltaX - downX;
-                float endDeltaPercent = endDeltaX / getCoordinate().getLenCx();
+                float endDeltaPercent = endDeltaX / getXCoordinateLen();
                 float endPointCount = (pointsCount - 1) * Math.abs(endDeltaPercent);
                 float extra = (float)((endPointCount - Math.floor(endPointCount)) * perUnitLenX);
 
@@ -1209,9 +1211,9 @@ public class Chart extends FrameLayout {
 
         @Override
         public void onUpCallback(MotionEvent e) {
-            if (inDefaultScrollMode && pointsCount > 0) {
+            if (pointsCount > 0) {
                 float x = e.getX();
-                float percent = (x - downX) / getCoordinate().getLenCx();
+                float percent = (x - downX) / getXCoordinateLen();
                 float originDelta = (pointsCount - 1) * Math.abs(percent);
                 float extra = (float)((originDelta - Math.floor(originDelta)) * perUnitLenX);
                 float endX = x;
@@ -1226,11 +1228,12 @@ public class Chart extends FrameLayout {
         }
 
         private void handleScrollUpEvent(float x) {
-            float percent = (x - downX) / getCoordinate().getLenCx();
+            float percent = (x - downX) / getXCoordinateLen();
             int delta = Math.round((pointsCount - 1) * Math.abs(percent));
             if (percent < 0) {
-                if (scrollIndex[1] + delta > totalCoordPoints.length - 1) {
-                    scrollIndex[1] = totalCoordPoints.length - 1;
+                int count = getTotalPointCount();
+                if (scrollIndex[1] + delta > count - 1) {
+                    scrollIndex[1] = count - 1;
                     scrollIndex[0] = scrollIndex[1] - pointsCount + 1;
                 } else {
                     scrollIndex[0] += delta;
@@ -1259,11 +1262,12 @@ public class Chart extends FrameLayout {
 
         private void handleScrollEvent(float x) {
             //Log.i("Rambo111", "handleScrollEvent() downX = " + downX + ", x = " + x);
-            float percent = (x - downX) / getCoordinate().getLenCx();
+            float percent = (x - downX) / getXCoordinateLen();
             int delta = (int)Math.ceil((pointsCount - 1) * Math.abs(percent));
             if (percent < 0) {
-                if (scrollIndex[1] + delta > totalCoordPoints.length - 1) {
-                    endIndex = totalCoordPoints.length - 1;
+                int count = getTotalPointCount();
+                if (scrollIndex[1] + delta > count - 1) {
+                    endIndex = count - 1;
                     startIndex = scrollIndex[0];
                     scrollX = (scrollIndex[1]- endIndex) * perUnitLenX;
                 } else {
