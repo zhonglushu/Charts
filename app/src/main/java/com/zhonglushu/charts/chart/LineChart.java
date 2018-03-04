@@ -84,17 +84,17 @@ public class LineChart extends Chart{
             double x, y;
             Rect rect = new Rect();
             int length = getCoordPoints().length;
-            boolean moveToActual = false;
+            boolean moveToFirst = false;
             PointD firstPoint = null;
             PointD lastPoint = null;
             for (int i = 0; i < length; i++) {
                 if (isDoubleMinValue(getCoordPoints()[i].y)) {
                     continue;
                 }
-                x = transXToPosition(getCoordPoints()[i].x);
+                x = getChartScrollX() + transXToPosition(getCoordPoints()[i].x);
                 y = transYToPosition(getCoordPoints()[i].y);
-                if (!moveToActual) {
-                    moveToActual = true;
+                if (!moveToFirst) {
+                    moveToFirst = true;
                     firstPoint = getCoordPoints()[i];
                     linePath.moveTo((float)x, (float)y);
                     if (drawGradientArea) {
@@ -122,12 +122,12 @@ public class LineChart extends Chart{
             }
             //绘制渐变
             if (drawGradientArea && firstPoint != null && lastPoint != null) {
-                gradientPath.lineTo((float)transXToPosition(lastPoint.x), getCoordinate().coord.y);
-                float firstPointX = (float)transXToPosition(firstPoint.x);
+                gradientPath.lineTo(getChartScrollX() + (float)transXToPosition(lastPoint.x), getCoordinate().coord.y);
+                float firstPointX = getChartScrollX() + (float)transXToPosition(firstPoint.x);
                 float firstPointY = (float)transYToPosition(firstPoint.y);
                 gradientPath.lineTo(firstPointX, getCoordinate().coord.y);
                 gradientPath.lineTo(firstPointX, firstPointY);
-                gradientPaint.setShader(new LinearGradient((float)cyMaxPoint.x, (float)cyMaxPoint.y, (float)cyMaxPoint.x, getCoordinate().coord.y,
+                gradientPaint.setShader(new LinearGradient(getChartScrollX() + (float)cyMaxPoint.x, (float)cyMaxPoint.y, getChartScrollX() + (float)cyMaxPoint.x, getCoordinate().coord.y,
                         gradientColors, new float[]{0.45f, 1.0f}, Shader.TileMode.CLAMP));
                 canvas.drawPath(gradientPath, gradientPaint);
             }

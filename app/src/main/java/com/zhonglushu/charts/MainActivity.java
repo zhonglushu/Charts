@@ -9,24 +9,128 @@ import android.view.MotionEvent;
 
 import com.zhonglushu.charts.chart.BarChart;
 import com.zhonglushu.charts.chart.Chart;
+import com.zhonglushu.charts.chart.CurveChart;
+import com.zhonglushu.charts.chart.LineChart;
 import com.zhonglushu.charts.utils.CommonUtil;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
-    //翻页的图表
-    private BarChart pageBarChart;
-    //默认随手势滚动的图表
-    private BarChart defaultBarChart;
-    private int[] scrollMonthIndex = new int[2];
-    private int[] scrollMonthIndex2 = new int[2];
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /*
+         --------------------------------- 折线图表 ------------------------------------
+         */
+        LineChart lineChart = (LineChart) findViewById(R.id.line_chart);
+        lineChart.setDrawGradientArea(true);
+        //间距margin
+        lineChart.setxStartMarginRadio(0.074f);
+        lineChart.setxEndMarginRadio(0.0f);
+        lineChart.setyStartMarginRadio(0.2476f);
+        lineChart.setyEndMarginRadio(0.0334f);
+        //lineChart.getCoordinate().setCxEndSpaceRadio(0.0833f);
+        //lineChart.getCoordinate().setCxStartSpaceRadio(0.0833f);
+        //x轴刻度距离原点距离
+        lineChart.getCoordinate().setCyTextSpaceRadio(0.088f);
+        lineChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
+        lineChart.getCoordinate().setCyDirection(Chart.Coordinate.DIRECTION.POSITIVE);
 
-        pageBarChart = (BarChart) findViewById(R.id.page_bar_chart);
+        //lineChart.getCoordinate().setCxReverse(true);
+        lineChart.getCoordinate().setCxyTextSize(getResources().getDimensionPixelSize(R.dimen.defalut_line_chart_xcoord_textsize));
+        lineChart.getCoordinate().setCxFormat(new LineChart.Coordinate.UnitFormat() {
+            @Override
+            public String format(String unit) {
+                double d = Double.valueOf(unit);
+                return CommonUtil.getRecentHundredDayUnitXFormat(d);
+            }
+        });
+        lineChart.getCoordinate().setCyUnitValueFunc(new Chart.Coordinate.CustomUnitValueFunc() {
+            @Override
+            public String[] unitValues(Chart.PointD[] pointDs, double[] range) {
+                double minCy = 0.0f;
+                double maxCy = Double.MIN_VALUE;
+                for (int i = 0; i < pointDs.length; i++) {
+                    maxCy = Math.max(maxCy, pointDs[i].y);
+                }
+                int count = (int)(Math.ceil(maxCy));
+                String[] str = new String[count + 1];
+                for (int j = 0; j <= count; j++) {
+                    str[j] = "" + j;
+                }
+                range[0] = minCy;
+                range[1] = maxCy;
+                return str;
+            }
+        });
+        int[] lineChartIndex = new int[2];
+        Chart.PointD[] lineChartPoints = CommonUtil.createRecentHundredDaysValues(lineChartIndex);
+        if (lineChartPoints != null && lineChartPoints.length > 0) {
+            //设置滑动模式
+            lineChart.setScrollMode(Chart.ScrollMode.DEFAULT);
+            lineChart.setTotalCoordPoints(lineChartPoints);
+            lineChart.setScrollIndex(lineChartIndex);
+            lineChart.invalidate();
+        }
+
+        /*
+         --------------------------------- 曲线图表 ：随手势翻页的图表 ------------------------------------
+         */
+        CurveChart curveChart = (CurveChart) findViewById(R.id.curve_chart);
+        //间距margin
+        curveChart.setxStartMarginRadio(0.074f);
+        curveChart.setxEndMarginRadio(0.0f);
+        curveChart.setyStartMarginRadio(0.2476f);
+        curveChart.setyEndMarginRadio(0.0334f);
+        //curveChart.getCoordinate().setCxEndSpaceRadio(0.0833f);
+        //curveChart.getCoordinate().setCxStartSpaceRadio(0.0833f);
+        //x轴刻度距离原点距离
+        curveChart.getCoordinate().setCyTextSpaceRadio(0.088f);
+        curveChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
+        curveChart.getCoordinate().setCyDirection(Chart.Coordinate.DIRECTION.POSITIVE);
+
+        //curveChart.getCoordinate().setCxReverse(true);
+        curveChart.getCoordinate().setCxyTextSize(getResources().getDimensionPixelSize(R.dimen.defalut_line_chart_xcoord_textsize));
+        curveChart.getCoordinate().setCxFormat(new LineChart.Coordinate.UnitFormat() {
+            @Override
+            public String format(String unit) {
+                double d = Double.valueOf(unit);
+                return CommonUtil.getRecentHundredDayUnitXFormat(d);
+            }
+        });
+        curveChart.getCoordinate().setCyUnitValueFunc(new Chart.Coordinate.CustomUnitValueFunc() {
+            @Override
+            public String[] unitValues(Chart.PointD[] pointDs, double[] range) {
+                double minCy = 0.0f;
+                double maxCy = Double.MIN_VALUE;
+                for (int i = 0; i < pointDs.length; i++) {
+                    maxCy = Math.max(maxCy, pointDs[i].y);
+                }
+                int count = (int)(Math.ceil(maxCy));
+                String[] str = new String[count + 1];
+                for (int j = 0; j <= count; j++) {
+                    str[j] = "" + j;
+                }
+                range[0] = minCy;
+                range[1] = maxCy;
+                return str;
+            }
+        });
+        int[] curveChartIndex = new int[2];
+        Chart.PointD[] curveChartPoints = CommonUtil.createRecentHundredDaysValues(curveChartIndex);
+        if (curveChartPoints != null && curveChartPoints.length > 0) {
+            //设置滑动模式
+            curveChart.setScrollMode(Chart.ScrollMode.DEFAULT);
+            curveChart.setTotalCoordPoints(curveChartPoints);
+            curveChart.setScrollIndex(curveChartIndex);
+            lineChart.invalidate();
+        }
+
+        /*
+         --------------------------------- 柱状图表 ：随手势翻页的图表 ------------------------------------
+         */
+        final BarChart pageBarChart = (BarChart) findViewById(R.id.page_bar_chart);
         //间距margin
         pageBarChart.setyStartMarginRadio(0.21f);
         pageBarChart.setyEndMarginRadio(0.21f);
@@ -154,33 +258,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFlingCallback(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                 if (pointsCount > 0) {
-//                    float tempVelocityX = velocityX;
-//                    if (Math.abs(velocityX) > MAX_VELX) {
-//                        if (velocityX < 0) {
-//                            tempVelocityX = -MAX_VELX;
-//                        } else {
-//                            tempVelocityX = MAX_VELX;
-//                        }
-//                    }
-//                    float percentVx = tempVelocityX / MAX_VELX;
-//                    float startX = e2.getX();
-//
-//                    float lenX = pageBarChart.getXCoordinateLen() * 2 / 3;
-//                    float deltaX = percentVx * lenX;
-//                    float endDeltaX = startX + deltaX - downX;
-//                    float endDeltaPercent = endDeltaX / pageBarChart.getXCoordinateLen();
-//                    float endPointCount = (pointsCount - 1) * Math.abs(endDeltaPercent);
-//                    float extra = (float)((endPointCount - Math.floor(endPointCount)) * perUnitLenX);
-//
-//                    float endX = startX + deltaX;
-//                    if (startX - downX < 0) {
-//                        endX += extra;
-//                    } else {
-//                        endX -= extra;
-//                    }
-//                    Log.i("Rambo222", "onFlingCallback endPointCount = " + endPointCount + ", extra = " + extra + ", downX = " + downX + ", startX = " + startX + ", endX = " + endX + ", perUnitLenX = " + perUnitLenX);
-//                    startFlingAnim(startX, endX);
-
                     float startX = e2.getX();
                     float endX = downX;
                     if (Math.abs(velocityX) > MAX_VELX) {
@@ -218,18 +295,6 @@ public class MainActivity extends AppCompatActivity {
             public void onUpCallback(MotionEvent e) {
                 if (pointsCount > 0) {
                     float x = e.getX();
-//                    float percent = (x - downX) / pageBarChart.getXCoordinateLen();
-//                    float originDelta = (pointsCount - 1) * Math.abs(percent);
-//                    float extra = (float)((originDelta - Math.floor(originDelta)) * perUnitLenX);
-//                    float endX = x;
-//                    if (percent < 0) {
-//                        endX += extra;
-//                    } else {
-//                        endX -= extra;
-//                    }
-//                    Log.i("Rambo222", "onUpCallback originDelta = " + originDelta + ", x = " + x + ", downX = " + downX + ", endX = " + endX + ", extra = " + extra);
-//                    startFlingAnim(x, endX);
-
                     float distance = x - downX;
                     float endX = downX;
                     if (Math.abs(distance) > MAX_DISTANCE) {
@@ -251,38 +316,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             private void handleScrollUpEvent(float x) {
-//                float percent = (x - downX) / pageBarChart.getXCoordinateLen();
-//                int delta = Math.round((pointsCount - 1) * Math.abs(percent));
-//                if (percent < 0) {
-//                    int count = pageBarChart.getTotalPointCount();
-//                    if (scrollIndex[1] + delta > count - 1) {
-//                        scrollIndex[1] = count - 1;
-//                        scrollIndex[0] = scrollIndex[1] - pointsCount + 1;
-//                    } else {
-//                        scrollIndex[0] += delta;
-//                        scrollIndex[1] += delta;
-//                    }
-//                } else {
-//                    if (scrollIndex[0] - delta < 0) {
-//                        scrollIndex[0] = 0;
-//                        scrollIndex[1] = scrollIndex[0] + pointsCount - 1;
-//                    } else {
-//                        scrollIndex[0] -= delta;
-//                        scrollIndex[1] -= delta;
-//                    }
-//                }
-//                Log.i("Rambo222", "handleScrollUpEvent startIndex = " + startIndex + ", endIndex = " + endIndex + ", scrollIndex[0] = " + scrollIndex[0] + ", scrollIndex[1] = " + scrollIndex[1]);
-//                int count = scrollIndex[1] - scrollIndex[0] + 1;
                 int count = tempIndex[1] - tempIndex[0] + 1;
-//                int pointCount = pageBarChart.getTotalPointCount();
-//                if (tempIndex[1] > pointCount - 1) {
-//                    tempIndex[1] = pointCount - 1;
-//                    tempIndex[0] = pointCount - count;
-//                }
-//                if (tempIndex[0] < 0) {
-//                    tempIndex[0] = 0;
-//                    tempIndex[1] = count - 1;
-//                }
                 Chart.PointD[] points = new Chart.PointD[count];
                 System.arraycopy(pageBarChart.getTotalCoordPoints(), tempIndex[0], points, 0, count);
                 if (points != null && points.length > 0) {
@@ -295,7 +329,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             private void handleScrollEvent(float x) {
-                //Log.i("Rambo111", "handleScrollEvent() downX = " + downX + ", x = " + x);
                 float percent = (x - downX) / pageBarChart.getXCoordinateLen();
                 int delta = (int)Math.ceil((pointsCount - 1) * Math.abs(percent));
                 if (percent < 0) {
@@ -332,9 +365,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             private void startFlingAnim(float startX, final float endX) {
-                Log.i("Rambo222", "cancelFlingAnim start");
                 cancelFlingAnim();
-                Log.i("Rambo222", "cancelFlingAnim finish");
                 valueAnimator = new ValueAnimator();
                 valueAnimator.setDuration(500);
                 valueAnimator.setInterpolator(new Chart.ScrollInterpolator());
@@ -354,7 +385,6 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        Log.i("Rambo222", "valueAnimator onAnimationEnd");
                         handleScrollUpEvent(endX);
                     }
 
@@ -368,9 +398,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-                Log.i("Rambo222", "valueAnimator start");
                 valueAnimator.start();
-                Log.i("Rambo222", "valueAnimator start finish");
             }
 
             private void cancelFlingAnim() {
@@ -386,20 +414,21 @@ public class MainActivity extends AppCompatActivity {
                 return caluCyUnitValues(pointDs, range);
             }
         });
-        Chart.PointD[] coordiates = CommonUtil.createAveDayCoorPoints(scrollMonthIndex);
-        if (coordiates != null && coordiates.length > 0) {
+        int[] pageScrollMonthIndex = new int[2];
+        Chart.PointD[] pageBarChartPoints = CommonUtil.createAveDayCoorPoints(pageScrollMonthIndex);
+        if (pageBarChartPoints != null && pageBarChartPoints.length > 0) {
             //设置滑动模式
             pageBarChart.setScrollMode(Chart.ScrollMode.CUSTOM);
-            pageBarChart.setTotalCoordPoints(coordiates);
-            pageBarChart.setScrollIndex(scrollMonthIndex);
+            pageBarChart.setTotalCoordPoints(pageBarChartPoints);
+            pageBarChart.setScrollIndex(pageScrollMonthIndex);
             pageBarChart.invalidate();
         }
 
 
         /*
-        ------------------------------------ 默认随手势滚动的图表 ----------------------------------
+        ------------------------------------ 柱状图表：默认随手势滚动的图表 ----------------------------------
          */
-        defaultBarChart = (BarChart) findViewById(R.id.default_bar_chart);
+        BarChart defaultBarChart = (BarChart) findViewById(R.id.default_bar_chart);
         //间距margin
         defaultBarChart.setyStartMarginRadio(0.21f);
         defaultBarChart.setyEndMarginRadio(0.21f);
@@ -473,16 +502,18 @@ public class MainActivity extends AppCompatActivity {
                 return caluCyUnitValues(pointDs, range);
             }
         });
-        Chart.PointD[] coordiates2 = CommonUtil.createAveDayCoorPoints(scrollMonthIndex2);
-        if (coordiates2 != null && coordiates2.length > 0) {
+        int[] scrollMonthIndex = new int[2];
+        Chart.PointD[] barChartPoints = CommonUtil.createAveDayCoorPoints(scrollMonthIndex);
+        if (barChartPoints != null && barChartPoints.length > 0) {
             //设置滑动模式
             defaultBarChart.setScrollMode(Chart.ScrollMode.DEFAULT);
-            defaultBarChart.setTotalCoordPoints(coordiates2);
-            defaultBarChart.setScrollIndex(scrollMonthIndex2);
+            defaultBarChart.setTotalCoordPoints(barChartPoints);
+            defaultBarChart.setScrollIndex(scrollMonthIndex);
             defaultBarChart.invalidate();
         }
     }
 
+    //自定义y轴的值
     private String[] caluCyUnitValues(Chart.PointD[] coordiates, double[] range) {
         int count = coordiates.length;
         double minCy = 0.0f;
@@ -503,12 +534,13 @@ public class MainActivity extends AppCompatActivity {
                 value = (decede + 1) * 10;
             }
         }
-        String[] array = new String[3];
-        for(int i = 0; i < array.length; i++) {
-            array[i] = "" + (minCy + value*(i + 1));
+        String[] array = new String[4];
+        array[0] = "0";
+        for(int i = 1; i < array.length; i++) {
+            array[i] = "" + (minCy + value*i);
         }
         range[0] = minCy;
-        range[1] = Double.valueOf(array[2]);
+        range[1] = Double.valueOf(array[3]);
         return array;
     }
 }

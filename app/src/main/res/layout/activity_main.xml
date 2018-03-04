@@ -1,24 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF020D16"
-    android:orientation="vertical"
     tools:context="com.zhonglushu.charts.MainActivity">
 
-    <com.zhonglushu.charts.chart.BarChart
-        android:id="@+id/page_bar_chart"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="287dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp" />
+        android:layout_height="match_parent"
+        android:background="#FF020D16"
+        android:orientation="vertical">
 
-    <com.zhonglushu.charts.chart.BarChart
-        android:id="@+id/default_bar_chart"
-        android:layout_width="match_parent"
-        android:layout_height="287dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp" />
-</LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/line_chart_title"/>
+
+        <com.zhonglushu.charts.chart.LineChart
+            android:id="@+id/line_chart"
+            android:layout_width="match_parent"
+            android:layout_height="287dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/curve_chart_title"/>
+
+        <com.zhonglushu.charts.chart.CurveChart
+            android:id="@+id/curve_chart"
+            android:layout_width="match_parent"
+            android:layout_height="287dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/page_bar_chart_title"/>
+
+        <com.zhonglushu.charts.chart.BarChart
+            android:id="@+id/page_bar_chart"
+            android:layout_width="match_parent"
+            android:layout_height="287dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/scroll_bar_chart_title"/>
+
+        <com.zhonglushu.charts.chart.BarChart
+            android:id="@+id/default_bar_chart"
+            android:layout_width="match_parent"
+            android:layout_height="287dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp" />
+
+        <!--<com.zhonglushu.charts.chart.RadarGraph-->
+            <!--android:id="@+id/radar_graph"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="287dp"-->
+            <!--android:layout_marginLeft="40dp"-->
+            <!--android:layout_marginRight="40dp"/>-->
+
+    </LinearLayout>
+</ScrollView>

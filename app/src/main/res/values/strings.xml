@@ -2,4 +2,8 @@
     <string name="app_name">Charts</string>
 
     <string name="barchart_tipbar_text" formatted="false">%s月%s日  %s度</string>
+    <string name="line_chart_title">基本的折线图表：</string>
+    <string name="curve_chart_title">基本的曲线图表：</string>
+    <string name="page_bar_chart_title">滑动翻页的柱状图表：</string>
+    <string name="scroll_bar_chart_title">左右滑动的柱状图表：</string>
 </resources>

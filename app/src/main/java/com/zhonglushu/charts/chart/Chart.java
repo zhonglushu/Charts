@@ -17,6 +17,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 
@@ -360,6 +361,44 @@ public class Chart extends FrameLayout {
         }
     }
 
+    //for chart view
+    public double transXToChartPosition(double x) {
+        float startX;
+        if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
+            startX = getCoordinate().cxStartSpaceRadio * width;
+        } else {
+            startX = (1.0f - getCoordinate().cxStartSpaceRadio) * width;
+        }
+        if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
+            if (getCoordinate().cxReverse) {
+                return startX + (getCoordinate().cxRange[1] - x)*getCoordinate().cxRealUnit;
+            } else {
+                return startX + (x - getCoordinate().cxRange[0])*getCoordinate().cxRealUnit;
+            }
+        } else {
+            if (getCoordinate().cxReverse) {
+                return startX  - (getCoordinate().cxRange[1] - x)*getCoordinate().cxRealUnit;
+            } else {
+                return startX  - (x - getCoordinate().cxRange[0])*getCoordinate().cxRealUnit;
+            }
+        }
+    }
+
+    //for chart view
+    public double transYToChartPosition(double y) {
+        float startY;
+        if (getCoordinate().cyDirection == Coordinate.DIRECTION.POSITIVE) {
+            startY = (1.0f - getCoordinate().cyStartSpaceRadio) * height;
+        } else {
+            startY = getCoordinate().cyStartSpaceRadio * height;
+        }
+        if (getCoordinate().cyDirection == Coordinate.DIRECTION.POSITIVE) {
+            return startY - (y - getCoordinate().cyRange[0])*getCoordinate().cyRealUnit;
+        } else {
+            return startY + (y - getCoordinate().cyRange[0])*getCoordinate().cyRealUnit;
+        }
+    }
+
     protected void getTextRound(String text, Rect rect, Paint temPaint) {
         temPaint.getTextBounds(text, 0, text.length(), rect);
     }
@@ -527,12 +566,12 @@ public class Chart extends FrameLayout {
             cxRealUnit = lenCx / (cxRange[1] - cxRange[0]);
             cyRealUnit = lenCy / (cyRange[1] - cyRange[0]);
             if (isCustomCxUnit()) {
-                cxUnit = lenCx / cxUnitValue.length;
+                cxUnit = lenCx / (cxUnitValue.length - 1);
             } else {
                 cxUnit = cxRealUnit;
             }
             if (isCustomCyUnit()) {
-                cyUnit = lenCy / cyUnitValue.length;
+                cyUnit = lenCy / (cyUnitValue.length - 1);
             } else {
                 cyUnit = cyRealUnit;
             }
@@ -745,7 +784,7 @@ public class Chart extends FrameLayout {
                 if (coordinate.drawYCoordText) {
                     if (coordinate.isCustomCyUnit()) {
                         for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
-                            cy = startY - (i + 1)*coordinate.cyUnit;
+                            cy = startY - i * coordinate.cyUnit;
                             text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
@@ -777,7 +816,7 @@ public class Chart extends FrameLayout {
                 if (coordinate.drawYCoordText) {
                     if (coordinate.isCustomCyUnit()) {
                         for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
-                            cy = startY + (i + 1)*coordinate.cyUnit;
+                            cy = startY + i * coordinate.cyUnit;
                             text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
@@ -809,7 +848,7 @@ public class Chart extends FrameLayout {
                 if (coordinate.drawYCoordText) {
                     if (coordinate.isCustomCyUnit()) {
                         for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
-                            cy = startY + (i + 1)*coordinate.cyUnit;
+                            cy = startY + i * coordinate.cyUnit;
                             text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
@@ -840,7 +879,7 @@ public class Chart extends FrameLayout {
                 if (coordinate.drawYCoordText) {
                     if (getCoordinate().isCustomCyUnit()) {
                         for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
-                            cy = startY - (i + 1)*coordinate.cyUnit;
+                            cy = startY - i * coordinate.cyUnit;
                             text = coordinate.getCyFormat().format(getCoordinate().cyUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
@@ -917,9 +956,9 @@ public class Chart extends FrameLayout {
                         int count = getCoordinate().cxUnitValue.length;
                         for (int i = 0; i < count; i++) {
                             if (coordinate.cxReverse) {
-                                cx = startX + (count - i)*coordinate.cxUnit;
+                                cx = startX + (count - 1 - i)*coordinate.cxUnit;
                             } else {
-                                cx = startX + (i + 1)*coordinate.cxUnit;
+                                cx = startX + i * coordinate.cxUnit;
                             }
                             text = coordinate.getCxFormat().format(coordinate.cxUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
@@ -952,9 +991,9 @@ public class Chart extends FrameLayout {
                         int count = getCoordinate().cxUnitValue.length;
                         for (int i = 0; i < count; i++) {
                             if (coordinate.cxReverse) {
-                                cx = startX + (count - i)*coordinate.cxUnit;
+                                cx = startX + (count - 1 - i)*coordinate.cxUnit;
                             } else {
-                                cx = startX + (i + 1)*coordinate.cxUnit;
+                                cx = startX + i * coordinate.cxUnit;
                             }
                             text = coordinate.getCxFormat().format(coordinate.cxUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
@@ -987,9 +1026,9 @@ public class Chart extends FrameLayout {
                         int count = getCoordinate().cxUnitValue.length;
                         for (int i = 0; i < count; i++) {
                             if (coordinate.cxReverse) {
-                                cx = startX - (count - i)*coordinate.cxUnit;
+                                cx = startX - (count - 1 - i)*coordinate.cxUnit;
                             } else {
-                                cx = startX - (i + 1)*coordinate.cxUnit;
+                                cx = startX - i * coordinate.cxUnit;
                             }
                             text = coordinate.getCxFormat().format(coordinate.cxUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
@@ -1021,9 +1060,9 @@ public class Chart extends FrameLayout {
                         int count = coordinate.cxUnitValue.length;
                         for (int i = 0; i < count; i++) {
                             if (coordinate.cxReverse) {
-                                cx = startX - (count - i)*coordinate.cxUnit;
+                                cx = startX - (count - 1 - i)*coordinate.cxUnit;
                             } else {
-                                cx = startX - (i + 1)*coordinate.cxUnit;
+                                cx = startX - i * coordinate.cxUnit;
                             }
                             cx += getChartScrollX();
                             text = coordinate.getCxFormat().format(getCoordinate().cxUnitValue[i]);
@@ -1058,7 +1097,11 @@ public class Chart extends FrameLayout {
                 return true;
             }
             if (gestureDetector.onTouchEvent(event)) {
-
+                ViewParent parent = getParent();
+                while (parent != null) {
+                    parent.requestDisallowInterceptTouchEvent(true);
+                    parent = parent.getParent();
+                }
             } else {
                 int action = event.getAction();
                 if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
@@ -1298,9 +1341,7 @@ public class Chart extends FrameLayout {
         }
 
         private void startFlingAnim(float startX, final float endX) {
-            Log.i("Rambo222", "cancelFlingAnim start");
             cancelFlingAnim();
-            Log.i("Rambo222", "cancelFlingAnim finish");
             valueAnimator = new ValueAnimator();
             valueAnimator.setDuration(500);
             valueAnimator.setInterpolator(new ScrollInterpolator());
@@ -1320,7 +1361,6 @@ public class Chart extends FrameLayout {
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    Log.i("Rambo222", "valueAnimator onAnimationEnd");
                     handleScrollUpEvent(endX);
                 }
 
@@ -1334,9 +1374,7 @@ public class Chart extends FrameLayout {
 
                 }
             });
-            Log.i("Rambo222", "valueAnimator start");
             valueAnimator.start();
-            Log.i("Rambo222", "valueAnimator start finish");
         }
 
         private void cancelFlingAnim() {

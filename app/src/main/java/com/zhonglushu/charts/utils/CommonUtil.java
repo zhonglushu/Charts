@@ -1,5 +1,7 @@
 package com.zhonglushu.charts.utils;
 
+import android.content.Context;
+
 import com.zhonglushu.charts.chart.Chart;
 import com.zhonglushu.charts.model.EnergyData;
 
@@ -17,7 +19,7 @@ public class CommonUtil {
 
     public static final int DAY_UNIT = 24 * 60 * 60 * 1000;
 
-    public static Chart.PointD[] createAveDayCoorPoints(int[] indexArray) {
+    public static Chart.PointD[] createAveDayCoorPoints(int[] rangeArray) {
         List<EnergyData> list = new ArrayList<>();
         EnergyData data = new EnergyData();
         data.begin = 1444472720000L;
@@ -60,15 +62,15 @@ public class CommonUtil {
             if (startYear == endYear) {
                 if (startMonth == endMonth) {
                     count = c.getActualMaximum(Calendar.DAY_OF_MONTH);
-                    indexArray[0] = 0;
-                    indexArray[1] = count - 1;
+                    rangeArray[0] = 0;
+                    rangeArray[1] = count - 1;
                 } else {
                     for (int i = startMonth; i <= endMonth; i++) {
                         c.set(Calendar.MONTH, i);
                         count += c.getActualMaximum(Calendar.DAY_OF_MONTH);
                     }
-                    indexArray[0] = count - endMonthCount;
-                    indexArray[1] = count - 1;
+                    rangeArray[0] = count - endMonthCount;
+                    rangeArray[1] = count - 1;
                 }
             } else {
                 int monthCount = 12 - startMonth + (endYear - startYear - 1) * 12 + (endMonth + 1);
@@ -77,16 +79,16 @@ public class CommonUtil {
                     count += c.getActualMaximum(Calendar.DAY_OF_MONTH);
                     c.add(Calendar.MONTH, 1);
                 }
-                indexArray[0] = count - endMonthCount;
-                indexArray[1] = count - 1;
+                rangeArray[0] = count - endMonthCount;
+                rangeArray[1] = count - 1;
             }
 
         } else {
             if (list.size() == 1) {
                 c.setTimeInMillis(list.get(0).begin);
                 count = c.getActualMaximum(Calendar.DAY_OF_MONTH);
-                indexArray[0] = 0;
-                indexArray[1] = count - 1;
+                rangeArray[0] = 0;
+                rangeArray[1] = count - 1;
 
                 c.set(Calendar.DAY_OF_MONTH, 1);
                 minTime = c.getTimeInMillis();
@@ -127,6 +129,60 @@ public class CommonUtil {
             return coordiates;
         }
         return null;
+    }
+
+    public static Chart.PointD[] createRecentHundredDaysValues(int[] rangeArray) {
+        int count = 100;
+        Chart.PointD[] pointDs = new Chart.PointD[count];
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        for (int i = 0; i < count; i++) {
+            Chart.PointD pointD = new Chart.PointD();
+            pointD.x = c.getTimeInMillis() / 1000;
+            pointD.y = 2 + Math.random() * 5;
+            pointDs[i] = pointD;
+            c.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        rangeArray[0] = 0;
+        rangeArray[1] = 6;
+        return pointDs;
+    }
+
+    public static String getRecentHundredDayUnitXFormat(double unit) {
+        long time = (long)unit;
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(time * 1000);
+
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        //today
+        c.setTimeInMillis(System.currentTimeMillis());
+        int curYear = c.get(Calendar.YEAR);
+        int curMonth = c.get(Calendar.MONTH);
+        int curDay = c.get(Calendar.DAY_OF_MONTH);
+
+        //yestoday
+        c.add(Calendar.DAY_OF_MONTH, -1);
+        int yesYear = c.get(Calendar.YEAR);
+        int yesMonth = c.get(Calendar.MONTH);
+        int yesDay = c.get(Calendar.DAY_OF_MONTH);
+
+        //before yestoday
+        c.add(Calendar.DAY_OF_MONTH, -1);
+        int befYear = c.get(Calendar.YEAR);
+        int befMonth = c.get(Calendar.MONTH);
+        int befDay = c.get(Calendar.DAY_OF_MONTH);
+
+        if (year == curYear && month == curMonth && day == curDay) {
+            return "今天";
+        } else if (year == yesYear && month == yesMonth && day == yesDay) {
+            return "昨天";
+        } else if (year == befYear && month == befMonth && day == befDay) {
+            return "前天";
+        } else {
+            return day + "日";
+        }
     }
 
 }
