@@ -126,6 +126,11 @@ public class CommonUtil {
                     coordiates[index] = point;
                 }
             }
+//            for (int start = 0, end = coordiates.length - 1; start < end; start++, end--) {
+//                Chart.PointD temp = coordiates[end];
+//                coordiates[end] = coordiates[start];
+//                coordiates[start] = temp;
+//            }
             return coordiates;
         }
         return null;

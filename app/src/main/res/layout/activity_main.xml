@@ -15,6 +15,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite_60"
+            android:layout_marginLeft="40dp"
+            android:textSize="20sp"
             android:text="@string/line_chart_title"/>
 
         <com.zhonglushu.charts.chart.LineChart
@@ -28,6 +31,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:textColor="@color/colorWhite_60"
+            android:textSize="20sp"
             android:text="@string/curve_chart_title"/>
 
         <com.zhonglushu.charts.chart.CurveChart
@@ -41,6 +47,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:textColor="@color/colorWhite_60"
+            android:layout_marginLeft="40dp"
+            android:textSize="20sp"
             android:text="@string/page_bar_chart_title"/>
 
         <com.zhonglushu.charts.chart.BarChart
@@ -55,6 +64,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:textColor="@color/colorWhite_60"
+            android:textSize="20sp"
             android:text="@string/scroll_bar_chart_title"/>
 
         <com.zhonglushu.charts.chart.BarChart

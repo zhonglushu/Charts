@@ -2,11 +2,11 @@ package com.zhonglushu.charts;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
-
 import com.zhonglushu.charts.chart.BarChart;
 import com.zhonglushu.charts.chart.Chart;
 import com.zhonglushu.charts.chart.CurveChart;
@@ -30,14 +30,14 @@ public class MainActivity extends AppCompatActivity {
         lineChart.setxEndMarginRadio(0.0f);
         lineChart.setyStartMarginRadio(0.2476f);
         lineChart.setyEndMarginRadio(0.0334f);
-        //lineChart.getCoordinate().setCxEndSpaceRadio(0.0833f);
-        //lineChart.getCoordinate().setCxStartSpaceRadio(0.0833f);
+        lineChart.getCoordinate().setCxEndSpaceRadio(0.03f);
+        lineChart.getCoordinate().setCxStartSpaceRadio(0.03f);
         //x轴刻度距离原点距离
         lineChart.getCoordinate().setCyTextSpaceRadio(0.088f);
         lineChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
         lineChart.getCoordinate().setCyDirection(Chart.Coordinate.DIRECTION.POSITIVE);
 
-        //lineChart.getCoordinate().setCxReverse(true);
+        lineChart.getCoordinate().setCxReverse(true);
         lineChart.getCoordinate().setCxyTextSize(getResources().getDimensionPixelSize(R.dimen.defalut_line_chart_xcoord_textsize));
         lineChart.getCoordinate().setCxFormat(new LineChart.Coordinate.UnitFormat() {
             @Override
@@ -78,19 +78,20 @@ public class MainActivity extends AppCompatActivity {
          --------------------------------- 曲线图表 ：随手势翻页的图表 ------------------------------------
          */
         CurveChart curveChart = (CurveChart) findViewById(R.id.curve_chart);
+        curveChart.setDrawGradientArea(true);
         //间距margin
         curveChart.setxStartMarginRadio(0.074f);
         curveChart.setxEndMarginRadio(0.0f);
         curveChart.setyStartMarginRadio(0.2476f);
         curveChart.setyEndMarginRadio(0.0334f);
-        //curveChart.getCoordinate().setCxEndSpaceRadio(0.0833f);
-        //curveChart.getCoordinate().setCxStartSpaceRadio(0.0833f);
+        curveChart.getCoordinate().setCxEndSpaceRadio(0.03f);
+        curveChart.getCoordinate().setCxStartSpaceRadio(0.03f);
         //x轴刻度距离原点距离
         curveChart.getCoordinate().setCyTextSpaceRadio(0.088f);
         curveChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
         curveChart.getCoordinate().setCyDirection(Chart.Coordinate.DIRECTION.POSITIVE);
 
-        //curveChart.getCoordinate().setCxReverse(true);
+        curveChart.getCoordinate().setCxReverse(true);
         curveChart.getCoordinate().setCxyTextSize(getResources().getDimensionPixelSize(R.dimen.defalut_line_chart_xcoord_textsize));
         curveChart.getCoordinate().setCxFormat(new LineChart.Coordinate.UnitFormat() {
             @Override
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         //间距margin
         pageBarChart.setyStartMarginRadio(0.21f);
         pageBarChart.setyEndMarginRadio(0.21f);
-        pageBarChart.setxEndMarginRadio(0.0f);
+        pageBarChart.setxEndMarginRadio(0.074f);
         pageBarChart.setxStartMarginRadio(0.074f);
         //内补padding
         pageBarChart.getCoordinate().setCxStartSpaceRadio(0.0065f);
@@ -428,15 +429,15 @@ public class MainActivity extends AppCompatActivity {
         /*
         ------------------------------------ 柱状图表：默认随手势滚动的图表 ----------------------------------
          */
-        BarChart defaultBarChart = (BarChart) findViewById(R.id.default_bar_chart);
+        final BarChart defaultBarChart = (BarChart) findViewById(R.id.default_bar_chart);
         //间距margin
         defaultBarChart.setyStartMarginRadio(0.21f);
         defaultBarChart.setyEndMarginRadio(0.21f);
-        defaultBarChart.setxEndMarginRadio(0.0f);
+        defaultBarChart.setxEndMarginRadio(0.05f);
         defaultBarChart.setxStartMarginRadio(0.074f);
         //内补padding
         defaultBarChart.getCoordinate().setCxStartSpaceRadio(0.0065f);
-        defaultBarChart.getCoordinate().setCxEndSpaceRadio(0.0065f);//0.0417f
+        defaultBarChart.getCoordinate().setCxEndSpaceRadio(0.0065f);
         defaultBarChart.getCoordinate().setCyStartSpaceRadio(0.0232f);
         defaultBarChart.getCoordinate().setCyEndSpaceRadio(0.0f);
         //x轴刻度距离原点距离
@@ -511,6 +512,15 @@ public class MainActivity extends AppCompatActivity {
             defaultBarChart.setScrollIndex(scrollMonthIndex);
             defaultBarChart.invalidate();
         }
+
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                Chart.PointD pointD = new Chart.PointD();
+//                pointD.y = 5;
+//                defaultBarChart.updateCoordPoint(pointD, 10);
+//            }
+//        }, 5000);
     }
 
     //自定义y轴的值

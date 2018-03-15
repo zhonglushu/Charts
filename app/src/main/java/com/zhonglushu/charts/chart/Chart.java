@@ -44,7 +44,8 @@ public class Chart extends FrameLayout {
     private DashPathEffect dashPathEffect = null;
     //保存最高y轴的点，用于绘制渐变的颜色
     protected PointD cyMaxPoint;
-    protected CoordinateView coordinateView = null;
+    protected XCoordinateView xCoordinateView = null;
+    protected YCoordinateView yCoordinateView = null;
     protected ChartView chartView = null;
     protected StatusView statusView = null;
     private ScrollCallback scrollCallback = null;
@@ -62,6 +63,7 @@ public class Chart extends FrameLayout {
             return false;
         }
     }
+    private GestureDetector gestureDetector = null;
 
     public Chart(Context context) {
         super(context);
@@ -84,6 +86,7 @@ public class Chart extends FrameLayout {
     private void init() {
         coordinate = new Coordinate(getContext());
         dashPathEffect = new DashPathEffect(new float[]{20, 4}, 0);
+        gestureDetector = new GestureDetector(getContext(), simpleOnGestureListener);
     }
 
     @Override
@@ -103,11 +106,17 @@ public class Chart extends FrameLayout {
         if (chartView != null) {
             chartView.invalidate();
         }
+        if (xCoordinateView != null) {
+            xCoordinateView.invalidate();
+        }
     }
 
     public void invalidateCooridateView() {
-        if (coordinateView != null) {
-            coordinateView.invalidate();
+        if (xCoordinateView != null) {
+            xCoordinateView.invalidate();
+        }
+        if (yCoordinateView != null) {
+            yCoordinateView.invalidate();
         }
     }
 
@@ -196,7 +205,7 @@ public class Chart extends FrameLayout {
         this.chartScrollX = chartScrollX;
     }
 
-    private void updateRange() {
+    protected void updateRange() {
         int count = getCoordPoints().length;
         double minCx = Double.MAX_VALUE, maxCx = Double.MIN_VALUE;
         double minCy = Double.MAX_VALUE, maxCy = Double.MIN_VALUE;
@@ -224,9 +233,12 @@ public class Chart extends FrameLayout {
         super.onFinishInflate();
         Log.i("Rambo", "Chart onFinishInflate()");
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        coordinateView = new CoordinateView(getContext());
-        coordinateView.setCoordinate(coordinate);
-        this.addView(coordinateView, layoutParams);
+        xCoordinateView = new XCoordinateView(getContext());
+        xCoordinateView.setCoordinate(coordinate);
+        this.addView(xCoordinateView, layoutParams);
+        yCoordinateView = new YCoordinateView(getContext());
+        yCoordinateView.setCoordinate(coordinate);
+        this.addView(yCoordinateView, layoutParams);
         chartView = new ChartView(getContext());
         this.addView(chartView, layoutParams);
         statusView = new StatusView(getContext());
@@ -253,11 +265,11 @@ public class Chart extends FrameLayout {
                 float chartLeft = 0.0f;
                 float chartRight = 0.0f;
                 if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-                    chartLeft = getMaginStartX();
-                    chartRight = getMaginEndX();
+                    chartLeft = getMarginStartX();
+                    chartRight = getMarginEndX();
                 } else {
-                    chartLeft = getMaginEndX();
-                    chartRight = getMaginStartX();
+                    chartLeft = getMarginEndX();
+                    chartRight = getMarginStartX();
                 }
                 Log.i("Rambo222", "Chart onLayout() chartLeft = " + chartLeft + ", top = " + top + ", chartRight = " + chartRight + ", bottom = " + bottom);
                 getChildAt(i).layout((int)chartLeft, 0, (int)chartRight, bottom - top);
@@ -303,17 +315,17 @@ public class Chart extends FrameLayout {
         }
     }
 
-    public float getMaginStartX() {
+    public float getMarginStartX() {
         if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
             return xStartMarginRadio * width;
         } else {
-            return (1.0f - xStartMarginRadio)*width;
+            return (1.0f - xStartMarginRadio) * width;
         }
     }
 
-    public float getMaginEndX() {
+    public float getMarginEndX() {
         if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-            return (1.0f - xEndMarginRadio)*width;
+            return (1.0f - getCoordinate().cxEndSpaceRadio) * width;
         } else {
             return xEndMarginRadio * width;
         }
@@ -336,22 +348,6 @@ public class Chart extends FrameLayout {
         }
     }
 
-    public double transXToTouch(double x) {
-        if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-            if (getCoordinate().cxReverse) {
-                return width - transXToPosition(x);
-            } else {
-                return transXToPosition(x);
-            }
-        } else {
-            if (getCoordinate().cxReverse) {
-                return transXToPosition(x);
-            } else {
-                return width - transXToPosition(x);
-            }
-        }
-    }
-
     public double transYToPosition(double y) {
         float startY = getCoordStartY();
         if (getCoordinate().cyDirection == Coordinate.DIRECTION.POSITIVE) {
@@ -361,41 +357,22 @@ public class Chart extends FrameLayout {
         }
     }
 
-    //for chart view
-    public double transXToChartPosition(double x) {
-        float startX;
+    public double transXToChartViewPosition(double x) {
+        float startX = getCoordStartX();
         if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-            startX = getCoordinate().cxStartSpaceRadio * width;
-        } else {
-            startX = (1.0f - getCoordinate().cxStartSpaceRadio) * width;
-        }
-        if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
+            startX -= xStartMarginRadio * width;
             if (getCoordinate().cxReverse) {
                 return startX + (getCoordinate().cxRange[1] - x)*getCoordinate().cxRealUnit;
             } else {
                 return startX + (x - getCoordinate().cxRange[0])*getCoordinate().cxRealUnit;
             }
         } else {
+            startX -= xEndMarginRadio * width;
             if (getCoordinate().cxReverse) {
                 return startX  - (getCoordinate().cxRange[1] - x)*getCoordinate().cxRealUnit;
             } else {
                 return startX  - (x - getCoordinate().cxRange[0])*getCoordinate().cxRealUnit;
             }
-        }
-    }
-
-    //for chart view
-    public double transYToChartPosition(double y) {
-        float startY;
-        if (getCoordinate().cyDirection == Coordinate.DIRECTION.POSITIVE) {
-            startY = (1.0f - getCoordinate().cyStartSpaceRadio) * height;
-        } else {
-            startY = getCoordinate().cyStartSpaceRadio * height;
-        }
-        if (getCoordinate().cyDirection == Coordinate.DIRECTION.POSITIVE) {
-            return startY - (y - getCoordinate().cyRange[0])*getCoordinate().cyRealUnit;
-        } else {
-            return startY + (y - getCoordinate().cyRange[0])*getCoordinate().cyRealUnit;
         }
     }
 
@@ -743,11 +720,11 @@ public class Chart extends FrameLayout {
         public double y;
     }
 
-    protected class CoordinateView extends View {
+    protected class XCoordinateView extends View {
 
         private Coordinate coordinate;
 
-        public CoordinateView(Context context) {
+        public XCoordinateView(Context context) {
             super(context);
         }
 
@@ -762,184 +739,8 @@ public class Chart extends FrameLayout {
             if (getCoordPoints() == null || getCoordPoints().length <= 0) {
                 return;
             }
-            //画x，y轴
-            //Coordinate coordinate = getCoordinate();
             coordinate.unitPaint.setPathEffect(null);
-            double x, y;
-            double cx, cy;
-            String text;
-            Rect cxRect = new Rect();
-            Rect cyRect = new Rect();
-            float startX = getCoordStartX();
-            float startY = getCoordStartY();
-            if (coordinate.cxDirection == Coordinate.DIRECTION.POSITIVE &&
-                    coordinate.cyDirection == Coordinate.DIRECTION.POSITIVE) {
-                if (coordinate.drawXCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, (1.0f - xEndMarginRadio)*width, coordinate.coord.y, coordinate.unitPaint);
-                }
-                if (coordinate.drawYCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, yEndMarginRadio*height, coordinate.unitPaint);
-                }
-                //绘制刻度
-                if (coordinate.drawYCoordText) {
-                    if (coordinate.isCustomCyUnit()) {
-                        for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
-                            cy = startY - i * coordinate.cyUnit;
-                            text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
-                            if (!TextUtils.isEmpty(text)) {
-                                getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
-                            }
-                        }
-                    } else {
-                        for (int i= 0; i < getCoordPoints().length; i++) {
-                            y = getCoordPoints()[i].y;
-                            cy = startY - (y - coordinate.cyRange[0])*coordinate.cyUnit;
-                            text = coordinate.getCyFormat().format("" + y);
-                            if (!TextUtils.isEmpty(text)) {
-                                getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
-                            }
-                        }
-                    }
-                }
-
-            } else if (coordinate.cxDirection == Coordinate.DIRECTION.POSITIVE &&
-                    coordinate.cyDirection == Coordinate.DIRECTION.NEGATIVE) {
-                if (coordinate.drawXCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, (1.0f - xEndMarginRadio)*width, coordinate.coord.y, coordinate.unitPaint);
-                }
-                if (coordinate.drawYCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, (1.0f - yEndMarginRadio)*height, coordinate.unitPaint);
-                }
-                //绘制刻度
-                if (coordinate.drawYCoordText) {
-                    if (coordinate.isCustomCyUnit()) {
-                        for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
-                            cy = startY + i * coordinate.cyUnit;
-                            text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
-                            if (!TextUtils.isEmpty(text)) {
-                                getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
-                            }
-                        }
-                    } else {
-                        for (int i= 0; i < getCoordPoints().length; i++) {
-                            y = getCoordPoints()[i].y;
-                            cy = startY + (y - coordinate.cyRange[0])*coordinate.cyUnit;
-                            text = coordinate.getCyFormat().format("" + y);
-                            if (!TextUtils.isEmpty(text)) {
-                                getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
-                            }
-                        }
-                    }
-                }
-
-            } else if (coordinate.cxDirection == Coordinate.DIRECTION.NEGATIVE &&
-                    coordinate.cyDirection == Coordinate.DIRECTION.NEGATIVE) {
-                if (coordinate.drawXCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, xEndMarginRadio*width, coordinate.coord.y, coordinate.unitPaint);
-                }
-                if (coordinate.drawYCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, (1.0f - xEndMarginRadio)*height, coordinate.unitPaint);
-                }
-                //绘制刻度
-                if (coordinate.drawYCoordText) {
-                    if (coordinate.isCustomCyUnit()) {
-                        for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
-                            cy = startY + i * coordinate.cyUnit;
-                            text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
-                            if (!TextUtils.isEmpty(text)) {
-                                getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
-                            }
-                        }
-                    } else {
-                        for (int i= 0; i < getCoordPoints().length; i++) {
-                            y = getCoordPoints()[i].y;
-                            cy = startY + (y - coordinate.cyRange[0])*coordinate.cyUnit;
-                            text = coordinate.getCyFormat().format("" + y);
-                            if (!TextUtils.isEmpty(text)) {
-                                getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
-                            }
-                        }
-                    }
-                }
-            } else if (coordinate.cxDirection == Coordinate.DIRECTION.NEGATIVE &&
-                    coordinate.cyDirection == Coordinate.DIRECTION.POSITIVE) {
-                if (coordinate.drawXCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, xEndMarginRadio*width, coordinate.coord.y, coordinate.unitPaint);
-                }
-                if (coordinate.drawYCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, yEndMarginRadio*height, coordinate.unitPaint);
-                }
-                //绘制刻度
-                if (coordinate.drawYCoordText) {
-                    if (getCoordinate().isCustomCyUnit()) {
-                        for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
-                            cy = startY - i * coordinate.cyUnit;
-                            text = coordinate.getCyFormat().format(getCoordinate().cyUnitValue[i]);
-                            if (!TextUtils.isEmpty(text)) {
-                                getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
-                            }
-
-                            if (coordinate.unitDashLine) {
-                                coordinate.unitPaint.setPathEffect(dashPathEffect);
-                                dashPath.reset();
-                                dashPath.moveTo(coordinate.coord.x, (float)cy);
-                                dashPath.lineTo(xEndMarginRadio*width, (float)cy);
-                                canvas.drawPath(dashPath, coordinate.unitPaint);
-                            }
-                        }
-
-                    } else {
-                        for (int i= 0; i < getCoordPoints().length; i++) {
-                            y = getCoordPoints()[i].y;
-                            cy = startY - (y - coordinate.cyRange[0])*coordinate.cyUnit;
-                            text = coordinate.getCyFormat().format("" + y);
-                            if (!TextUtils.isEmpty(text)) {
-                                getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    protected void onDrawChart(Canvas canvas) {
-
-    }
-
-    protected boolean showStatusView(MotionEvent event) {
-        return true;
-    }
-
-    protected boolean hideStatusView(MotionEvent event) {
-        return true;
-    }
-
-    protected class ChartView extends View {
-
-        private GestureDetector gestureDetector = null;
-
-        public ChartView(Context context) {
-            super(context);
-            gestureDetector = new GestureDetector(context, simpleOnGestureListener);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-            if (getCoordPoints() == null || getCoordPoints().length <= 0) {
-                return;
-            }
             drawXCoord(canvas);
-            onDrawChart(canvas);
         }
 
         private void drawXCoord(Canvas canvas) {
@@ -1090,80 +891,282 @@ public class Chart extends FrameLayout {
                 }
             }
         }
+    }
+
+    protected class YCoordinateView extends View {
+
+        private Coordinate coordinate;
+
+        public YCoordinateView(Context context) {
+            super(context);
+        }
+
+        public void setCoordinate(Coordinate coordinate) {
+            this.coordinate = coordinate;
+        }
 
         @Override
-        public boolean onTouchEvent(MotionEvent event) {
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            Log.i("Rambo", "CoordinateView onDraw()");
             if (getCoordPoints() == null || getCoordPoints().length <= 0) {
-                return true;
+                return;
             }
-            if (gestureDetector.onTouchEvent(event)) {
-                ViewParent parent = getParent();
-                while (parent != null) {
-                    parent.requestDisallowInterceptTouchEvent(true);
-                    parent = parent.getParent();
+            coordinate.unitPaint.setPathEffect(null);
+            drawYCoord(canvas);
+        }
+
+        private void drawYCoord(Canvas canvas) {
+            //画y轴
+            double y, cy;
+            String text;
+            Rect cyRect = new Rect();
+            float startY = getCoordStartY();
+            if (coordinate.cxDirection == Coordinate.DIRECTION.POSITIVE &&
+                    coordinate.cyDirection == Coordinate.DIRECTION.POSITIVE) {
+                if (coordinate.drawXCoord) {
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, (1.0f - xEndMarginRadio)*width, coordinate.coord.y, coordinate.unitPaint);
                 }
-            } else {
-                int action = event.getAction();
-                if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-                    Log.i("Rambo", "Charts onTouchEvent action = " + action);
-                    if (scrollCallback != null) {
-                        scrollCallback.onUpCallback(event);
+                if (coordinate.drawYCoord) {
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, yEndMarginRadio*height, coordinate.unitPaint);
+                }
+                //绘制刻度
+                if (coordinate.drawYCoordText) {
+                    if (coordinate.isCustomCyUnit()) {
+                        for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
+                            cy = startY - i * coordinate.cyUnit;
+                            text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
+                            if (!TextUtils.isEmpty(text)) {
+                                getTextRound(text, cyRect, coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                            }
+                        }
+                    } else {
+                        for (int i= 0; i < getCoordPoints().length; i++) {
+                            y = getCoordPoints()[i].y;
+                            cy = startY - (y - coordinate.cyRange[0])*coordinate.cyUnit;
+                            text = coordinate.getCyFormat().format("" + y);
+                            if (!TextUtils.isEmpty(text)) {
+                                getTextRound(text, cyRect, coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                            }
+                        }
                     }
                 }
+
+            } else if (coordinate.cxDirection == Coordinate.DIRECTION.POSITIVE &&
+                    coordinate.cyDirection == Coordinate.DIRECTION.NEGATIVE) {
+                if (coordinate.drawXCoord) {
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, (1.0f - xEndMarginRadio)*width, coordinate.coord.y, coordinate.unitPaint);
+                }
+                if (coordinate.drawYCoord) {
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, (1.0f - yEndMarginRadio)*height, coordinate.unitPaint);
+                }
+                //绘制刻度
+                if (coordinate.drawYCoordText) {
+                    if (coordinate.isCustomCyUnit()) {
+                        for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
+                            cy = startY + i * coordinate.cyUnit;
+                            text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
+                            if (!TextUtils.isEmpty(text)) {
+                                getTextRound(text, cyRect, coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                            }
+                        }
+                    } else {
+                        for (int i= 0; i < getCoordPoints().length; i++) {
+                            y = getCoordPoints()[i].y;
+                            cy = startY + (y - coordinate.cyRange[0])*coordinate.cyUnit;
+                            text = coordinate.getCyFormat().format("" + y);
+                            if (!TextUtils.isEmpty(text)) {
+                                getTextRound(text, cyRect, coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                            }
+                        }
+                    }
+                }
+
+            } else if (coordinate.cxDirection == Coordinate.DIRECTION.NEGATIVE &&
+                    coordinate.cyDirection == Coordinate.DIRECTION.NEGATIVE) {
+                if (coordinate.drawXCoord) {
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, xEndMarginRadio*width, coordinate.coord.y, coordinate.unitPaint);
+                }
+                if (coordinate.drawYCoord) {
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, (1.0f - xEndMarginRadio)*height, coordinate.unitPaint);
+                }
+                //绘制刻度
+                if (coordinate.drawYCoordText) {
+                    if (coordinate.isCustomCyUnit()) {
+                        for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
+                            cy = startY + i * coordinate.cyUnit;
+                            text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
+                            if (!TextUtils.isEmpty(text)) {
+                                getTextRound(text, cyRect, coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                            }
+                        }
+                    } else {
+                        for (int i= 0; i < getCoordPoints().length; i++) {
+                            y = getCoordPoints()[i].y;
+                            cy = startY + (y - coordinate.cyRange[0])*coordinate.cyUnit;
+                            text = coordinate.getCyFormat().format("" + y);
+                            if (!TextUtils.isEmpty(text)) {
+                                getTextRound(text, cyRect, coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                            }
+                        }
+                    }
+                }
+            } else if (coordinate.cxDirection == Coordinate.DIRECTION.NEGATIVE &&
+                    coordinate.cyDirection == Coordinate.DIRECTION.POSITIVE) {
+                if (coordinate.drawXCoord) {
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, xEndMarginRadio*width, coordinate.coord.y, coordinate.unitPaint);
+                }
+                if (coordinate.drawYCoord) {
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, yEndMarginRadio*height, coordinate.unitPaint);
+                }
+                //绘制刻度
+                if (coordinate.drawYCoordText) {
+                    if (getCoordinate().isCustomCyUnit()) {
+                        for (int i = 0; i < getCoordinate().cyUnitValue.length; i++) {
+                            cy = startY - i * coordinate.cyUnit;
+                            text = coordinate.getCyFormat().format(getCoordinate().cyUnitValue[i]);
+                            if (!TextUtils.isEmpty(text)) {
+                                getTextRound(text, cyRect, coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
+                            }
+
+                            if (coordinate.unitDashLine && i != 0) {
+                                coordinate.unitPaint.setPathEffect(dashPathEffect);
+                                dashPath.reset();
+                                dashPath.moveTo(coordinate.coord.x, (float)cy);
+                                dashPath.lineTo(xEndMarginRadio*width, (float)cy);
+                                canvas.drawPath(dashPath, coordinate.unitPaint);
+                            }
+                        }
+
+                    } else {
+                        for (int i= 0; i < getCoordPoints().length; i++) {
+                            y = getCoordPoints()[i].y;
+                            cy = startY - (y - coordinate.cyRange[0])*coordinate.cyUnit;
+                            text = coordinate.getCyFormat().format("" + y);
+                            if (!TextUtils.isEmpty(text)) {
+                                getTextRound(text, cyRect, coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    protected void onDrawChart(Canvas canvas) {
+
+    }
+
+    protected boolean customDrawChart() {
+        return false;
+    }
+
+    protected boolean showStatusView(MotionEvent event) {
+        return true;
+    }
+
+    protected boolean hideStatusView(MotionEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (getCoordPoints() == null || getCoordPoints().length <= 0) {
+            return true;
+        }
+        if (gestureDetector.onTouchEvent(event)) {
+            ViewParent parent = getParent();
+            while (parent != null) {
+                parent.requestDisallowInterceptTouchEvent(true);
+                parent = parent.getParent();
+            }
+        } else {
+            int action = event.getAction();
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                Log.i("Rambo", "Charts onTouchEvent action = " + action);
+                if (scrollCallback != null) {
+                    scrollCallback.onUpCallback(event);
+                }
+            }
+        }
+        return true;
+    }
+
+    protected class ChartView extends View {
+
+        public ChartView(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            if (getCoordPoints() == null || getCoordPoints().length <= 0) {
+                return;
+            }
+            if (!customDrawChart()) {
+                super.onDraw(canvas);
+            }
+            onDrawChart(canvas);
+        }
+    }
+
+    GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
+
+        boolean inScrollMode = false;
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            Log.i("Rambo", "SimpleOnGestureListener onSingleTapUp");
+            showStatusView(e);
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            Log.i("Rambo", "SimpleOnGestureListener onScroll");
+            if (inScrollMode) {
+                Chart.this.hideStatusView(e2);
+            }
+            if (scrollCallback != null) {
+                scrollCallback.onScrollCallback(e1, e2, distanceX, distanceY);
             }
             return true;
         }
 
-        GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
-
-            boolean inScrollMode = false;
-
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                Log.i("Rambo", "SimpleOnGestureListener onSingleTapUp");
-                showStatusView(e);
-                return true;
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.i("Rambo", "SimpleOnGestureListener onFling velocityX = " + velocityX);
+            if (scrollCallback != null) {
+                scrollCallback.onFlingCallback(e1, e2, velocityX, velocityY);
             }
+            return true;
+        }
 
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                Log.i("Rambo", "SimpleOnGestureListener onScroll");
-                if (inScrollMode) {
-                    Chart.this.hideStatusView(e2);
-                }
-                if (scrollCallback != null) {
-                    scrollCallback.onScrollCallback(e1, e2, distanceX, distanceY);
-                }
-                return true;
+        @Override
+        public boolean onDown(MotionEvent e) {
+            Log.i("Rambo", "SimpleOnGestureListener onDown downX = " + e.getX() + ", downY = " + e.getY());
+            inScrollMode = Chart.this.inScrollMode();
+            if (scrollCallback != null) {
+                scrollCallback.onDownCallback(e);
             }
+            return super.onDown(e);
+        }
 
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                Log.i("Rambo", "SimpleOnGestureListener onFling velocityX = " + velocityX);
-                if (scrollCallback != null) {
-                    scrollCallback.onFlingCallback(e1, e2, velocityX, velocityY);
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onDown(MotionEvent e) {
-                Log.i("Rambo", "SimpleOnGestureListener onDown downX = " + e.getX() + ", downY = " + e.getY());
-                inScrollMode = Chart.this.inScrollMode();
-                if (scrollCallback != null) {
-                    scrollCallback.onDownCallback(e);
-                }
-                return super.onDown(e);
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-                super.onLongPress(e);
-                Log.i("Rambo", "SimpleOnGestureListener onLongPress");
-                showStatusView(e);
-            }
-        };
-    }
+        @Override
+        public void onLongPress(MotionEvent e) {
+            super.onLongPress(e);
+            Log.i("Rambo", "SimpleOnGestureListener onLongPress");
+            showStatusView(e);
+        }
+    };
 
     public void setScrollCallback(ScrollCallback scrollCallback) {
         this.scrollCallback = scrollCallback;
@@ -1271,7 +1274,11 @@ public class Chart extends FrameLayout {
         }
 
         private void handleScrollUpEvent(float x) {
-            float percent = (x - downX) / getXCoordinateLen();
+            float temp = x - downX;
+            if (!getCoordinate().cxReverse) {
+                temp = -temp;
+            }
+            float percent = temp / getXCoordinateLen();
             int delta = Math.round((pointsCount - 1) * Math.abs(percent));
             if (percent < 0) {
                 int count = getTotalPointCount();
@@ -1305,14 +1312,22 @@ public class Chart extends FrameLayout {
 
         private void handleScrollEvent(float x) {
             //Log.i("Rambo111", "handleScrollEvent() downX = " + downX + ", x = " + x);
-            float percent = (x - downX) / getXCoordinateLen();
+            float temp = x - downX;
+            if (!getCoordinate().cxReverse) {
+                temp = -temp;
+            }
+            float percent = temp / getXCoordinateLen();
             int delta = (int)Math.ceil((pointsCount - 1) * Math.abs(percent));
             if (percent < 0) {
                 int count = getTotalPointCount();
                 if (scrollIndex[1] + delta > count - 1) {
                     endIndex = count - 1;
                     startIndex = scrollIndex[0];
-                    scrollX = (scrollIndex[1]- endIndex) * perUnitLenX;
+                    if (getCoordinate().cxReverse) {
+                        scrollX = (scrollIndex[1] - endIndex) * perUnitLenX;
+                    } else {
+                        scrollX = (endIndex - scrollIndex[1]) * perUnitLenX;
+                    }
                 } else {
                     startIndex = scrollIndex[0];
                     endIndex = scrollIndex[1] + delta;
@@ -1322,7 +1337,11 @@ public class Chart extends FrameLayout {
                 if (scrollIndex[0] - delta < 0) {
                     startIndex = 0;
                     endIndex = scrollIndex[1];
-                    scrollX = (scrollIndex[0] - startIndex) * perUnitLenX;
+                    if (getCoordinate().cxReverse) {
+                        scrollX = (scrollIndex[0] - startIndex) * perUnitLenX;
+                    } else {
+                        scrollX = (startIndex - scrollIndex[0]) * perUnitLenX;
+                    }
                 } else {
                     startIndex = scrollIndex[0] - delta;
                     endIndex = scrollIndex[1];

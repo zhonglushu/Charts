@@ -123,6 +123,7 @@ public class BarChart extends Chart {
         if (getCoordinate().cyRange[1] > pointD.y && getCoordinate().cyRange[0] < pointD.y) {
             invalidateBar(index);
         } else {
+            updateRange();
             invalidate();
         }
     }
@@ -238,18 +239,31 @@ public class BarChart extends Chart {
             if (isDoubleMinValue(getCoordPoints()[i].y)){
                 continue;
             }
-            double curPointX = transXToTouch(getCoordPoints()[i].x);
+            double curPointX = transXToPosition(getCoordPoints()[i].x);
             double prePointX = curPointX;
             double nextPointX = curPointX;
-            if (i > 0) {
-                prePointX = transXToTouch(getCoordPoints()[i - 1].x);
-            } else if (i == 0) {
-                prePointX = curPointX - 4 * barWidth < 0 ? 0 : curPointX - 4 * barWidth;
-            }
-            if (i < len - 1) {
-                nextPointX = transXToTouch(getCoordPoints()[i + 1].x);
-            } else if (i == len - 1) {
-                nextPointX = curPointX + 4 * barWidth > width ? width : curPointX + 4 * barWidth;
+            if (getCoordinate().cxReverse) {
+                if (i > 0) {
+                    prePointX = transXToPosition(getCoordPoints()[i - 1].x);
+                } else if (i == 0) {
+                    prePointX = curPointX - 4 * barWidth < 0 ? 0 : curPointX - 4 * barWidth;
+                }
+                if (i < len - 1) {
+                    nextPointX = transXToPosition(getCoordPoints()[i + 1].x);
+                } else if (i == len - 1) {
+                    nextPointX = curPointX + 4 * barWidth > width ? width : curPointX + 4 * barWidth;
+                }
+            } else {
+                if (i < len - 1) {
+                    prePointX = transXToPosition(getCoordPoints()[i + 1].x);
+                } else if (i == len - 1) {
+                    prePointX = curPointX - 4 * barWidth < 0 ? 0 : curPointX - 4 * barWidth;
+                }
+                if (i > 0) {
+                    nextPointX = transXToPosition(getCoordPoints()[i - 1].x);
+                } else if (i == 0) {
+                    nextPointX = curPointX + 4 * barWidth > width ? width : curPointX + 4 * barWidth;
+                }
             }
             double minX = Math.min(prePointX, nextPointX);
             double maxX = Math.max(prePointX, nextPointX);
@@ -280,6 +294,11 @@ public class BarChart extends Chart {
             invalidateStatusView();
         }
         return true;
+    }
+
+    @Override
+    protected boolean customDrawChart() {
+        return currentType.type == INVALIDATE.BAR;
     }
 
     @Override
@@ -335,7 +354,7 @@ public class BarChart extends Chart {
         double x, y;
         double startX, endX;
         double min, max;
-        x = transXToPosition(getCoordPoints()[index].x);
+        x = transXToChartViewPosition(getCoordPoints()[index].x);
         y = transYToPosition(getCoordPoints()[index].y);
         startX = x - barWidth / 2.0f;
         endX = x + barWidth / 2.0f;
