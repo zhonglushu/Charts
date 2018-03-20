@@ -116,9 +116,11 @@ public class BarChart extends Chart {
     }
 
     public void updateCoordPoint(PointD pointD, int index) {
+        Log.i("Rambo", "BarChart updateCoordPoint() index = " + index);
         if (getCoordPoints().length <= index) {
             return;
         }
+        hideStatusView(null);
         getCoordPoints()[index].y = pointD.y;
         if (getCoordinate().cyRange[1] > pointD.y && getCoordinate().cyRange[0] < pointD.y) {
             invalidateBar(index);
@@ -129,7 +131,6 @@ public class BarChart extends Chart {
     }
 
     public void invalidateBar(int index) {
-        //正在全部刷新
         Log.i("Rambo", "invalidateBar BAR start");
         RectF rectF = getPointRect(index);
         Rect rect = new Rect();

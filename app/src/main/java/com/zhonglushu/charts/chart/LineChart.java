@@ -9,7 +9,6 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.util.AttributeSet;
 
 import com.zhonglushu.charts.R;
@@ -91,7 +90,7 @@ public class LineChart extends Chart{
                 if (isDoubleMinValue(getCoordPoints()[i].y)) {
                     continue;
                 }
-                x = getChartScrollX() + transXToPosition(getCoordPoints()[i].x);
+                x = getChartScrollX() + transXToChartViewPosition(getCoordPoints()[i].x);
                 y = transYToPosition(getCoordPoints()[i].y);
                 if (!moveToFirst) {
                     moveToFirst = true;
@@ -122,13 +121,15 @@ public class LineChart extends Chart{
             }
             //绘制渐变
             if (drawGradientArea && firstPoint != null && lastPoint != null) {
-                gradientPath.lineTo(getChartScrollX() + (float)transXToPosition(lastPoint.x), getCoordinate().coord.y);
-                float firstPointX = getChartScrollX() + (float)transXToPosition(firstPoint.x);
+                gradientPath.lineTo(getChartScrollX() + (float)transXToChartViewPosition(lastPoint.x), getCoordinate().coord.y);
+                float firstPointX = getChartScrollX() + (float)transXToChartViewPosition(firstPoint.x);
                 float firstPointY = (float)transYToPosition(firstPoint.y);
                 gradientPath.lineTo(firstPointX, getCoordinate().coord.y);
                 gradientPath.lineTo(firstPointX, firstPointY);
-                gradientPaint.setShader(new LinearGradient(getChartScrollX() + (float)cyMaxPoint.x, (float)cyMaxPoint.y, getChartScrollX() + (float)cyMaxPoint.x, getCoordinate().coord.y,
-                        gradientColors, new float[]{0.45f, 1.0f}, Shader.TileMode.CLAMP));
+                float maxPointX = (float)transXToChartViewPosition(cyMaxPoint.x);
+                float maxPointY = (float)transXToChartViewPosition(cyMaxPoint.y);
+                gradientPaint.setShader(new LinearGradient(getChartScrollX() + maxPointX, maxPointY, getChartScrollX() + maxPointX, getCoordinate().coord.y,
+                        gradientColors, null, Shader.TileMode.CLAMP));
                 canvas.drawPath(gradientPath, gradientPaint);
             }
             //绘制折线

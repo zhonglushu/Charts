@@ -141,15 +141,16 @@ public class CommonUtil {
         Chart.PointD[] pointDs = new Chart.PointD[count];
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(System.currentTimeMillis());
-        for (int i = 0; i < count; i++) {
+        for (int i = count - 1; i >= 0; i--) {
             Chart.PointD pointD = new Chart.PointD();
             pointD.x = c.getTimeInMillis() / 1000;
             pointD.y = 2 + Math.random() * 5;
             pointDs[i] = pointD;
             c.add(Calendar.DAY_OF_MONTH, -1);
         }
-        rangeArray[0] = 0;
-        rangeArray[1] = 6;
+        //display the data of a week
+        rangeArray[0] = count - 7;
+        rangeArray[1] = count - 1;
         return pointDs;
     }
 
@@ -188,6 +189,13 @@ public class CommonUtil {
         } else {
             return day + "日";
         }
+    }
+
+    public static boolean isDoubleMinValue(double d) {
+        if (Double.compare(d, Double.MIN_VALUE) == 0) {
+            return true;
+        }
+        return false;
     }
 
 }

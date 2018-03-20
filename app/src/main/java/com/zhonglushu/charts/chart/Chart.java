@@ -149,6 +149,16 @@ public class Chart extends FrameLayout {
         updateRange();
     }
 
+    public void setScrollIndex(int[] index) {
+        this.scrollIndex = index;
+        if (totalCoordPoints != null && totalCoordPoints.length > 0) {
+            int count = scrollIndex[1] - scrollIndex[0] + 1;
+            PointD[] pointDs = new PointD[count];
+            System.arraycopy(totalCoordPoints, scrollIndex[0], pointDs, 0, count);
+            setCoordPoints(pointDs);
+        }
+    }
+
     public void updateCoordPoints(PointD[] coordPoints) {
         this.coordPoints = coordPoints;
     }
@@ -211,20 +221,27 @@ public class Chart extends FrameLayout {
         double minCy = Double.MAX_VALUE, maxCy = Double.MIN_VALUE;
         int index = 0;
         for (int i = 0; i < count; i++) {
-            minCx = Math.min(minCx, getCoordPoints()[i].x);
-            maxCx = Math.max(maxCx, getCoordPoints()[i].x);
-            minCy = Math.min(minCy, getCoordPoints()[i].y);
-            if (getCoordPoints()[i].y > maxCy) {
+            double tempX = getCoordPoints()[i].x;
+            minCx = Math.min(minCx, tempX);
+            maxCx = Math.max(maxCx, tempX);
+            double tempY = getCoordPoints()[i].y;
+            minCy = Math.min(minCy, tempY);
+            if (tempY > maxCy) {
                 index = i;
-                maxCy = getCoordPoints()[i].y;
+                maxCy = tempY;
             }
         }
         cyMaxPoint = getCoordPoints()[index];
-        Log.i("Rambo", "updateRange minCx = " + minCx + ", maxCx = " + maxCx);
-        Log.i("Rambo", "updateRange minCy = " + minCy + ", maxCy = " + maxCy);
-        getCoordinate().setCxRange(minCx, maxCx);
-        getCoordinate().setCyRange(minCy, maxCy);
-        getCoordinate().updateUnitValues(coordPoints);
+        if (getCoordinate().getCxUnitValueFunc() != null) {
+            getCoordinate().updateCxUnitValues(coordPoints);
+        } else {
+            getCoordinate().setCxRange(minCx, maxCx);
+        }
+        if (getCoordinate().getCyUnitValueFunc() != null) {
+            getCoordinate().updateCyUnitValues(coordPoints);
+        } else {
+            getCoordinate().setCyRange(minCy, maxCy);
+        }
         updateCoord();
     }
 
@@ -514,13 +531,24 @@ public class Chart extends FrameLayout {
             unitPaint.setColor(context.getResources().getColor(R.color.curve_chart_coordinate_color));
         }
 
-        public void updateUnitValues(PointD[] pointDs) {
+        public void updateCxUnitValues(PointD[] pointDs) {
             if (pointDs != null) {
                 if (cxUnitValueFunc != null) {
-                    cxUnitValue = cxUnitValueFunc.unitValues(pointDs, cxRange);
+                    String[] temp = cxUnitValueFunc.unitValues(pointDs, cxRange);
+                    if (temp != null) {
+                        cxUnitValue = temp;
+                    }
                 }
+            }
+        }
+
+        public void updateCyUnitValues(PointD[] pointDs) {
+            if (pointDs != null) {
                 if (cyUnitValueFunc != null) {
-                    cyUnitValue = cyUnitValueFunc.unitValues(pointDs, cyRange);
+                    String[] temp = cyUnitValueFunc.unitValues(pointDs, cyRange);
+                    if (temp != null) {
+                        cyUnitValue = temp;
+                    }
                 }
             }
         }
@@ -704,6 +732,14 @@ public class Chart extends FrameLayout {
         public void setCxUnitValueFunc(CustomUnitValueFunc cxUnitValueFunc) {
             this.cxUnitValueFunc = cxUnitValueFunc;
         }
+
+        public CustomUnitValueFunc getCxUnitValueFunc() {
+            return cxUnitValueFunc;
+        }
+
+        public CustomUnitValueFunc getCyUnitValueFunc() {
+            return cyUnitValueFunc;
+        }
     }
 
     public static class PointD {
@@ -735,7 +771,6 @@ public class Chart extends FrameLayout {
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-            Log.i("Rambo", "CoordinateView onDraw()");
             if (getCoordPoints() == null || getCoordPoints().length <= 0) {
                 return;
             }
@@ -908,7 +943,6 @@ public class Chart extends FrameLayout {
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-            Log.i("Rambo", "CoordinateView onDraw()");
             if (getCoordPoints() == null || getCoordPoints().length <= 0) {
                 return;
             }
@@ -1176,16 +1210,6 @@ public class Chart extends FrameLayout {
         return scrollIndex;
     }
 
-    public void setScrollIndex(int[] scrollIndex) {
-        this.scrollIndex = scrollIndex;
-        if (totalCoordPoints != null && totalCoordPoints.length > 0) {
-            int count = scrollIndex[1] - scrollIndex[0] + 1;
-            PointD[] pointDs = new PointD[count];
-            System.arraycopy(totalCoordPoints, scrollIndex[0], pointDs, 0, count);
-            setCoordPoints(pointDs);
-        }
-    }
-
     public interface ScrollCallback {
         void onDownCallback(MotionEvent e);
         void onScrollCallback(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY);
@@ -1300,7 +1324,7 @@ public class Chart extends FrameLayout {
             }
             Log.i("Rambo222", "handleScrollUpEvent startIndex = " + startIndex + ", endIndex = " + endIndex + ", scrollIndex[0] = " + scrollIndex[0] + ", scrollIndex[1] = " + scrollIndex[1]);
             int count = scrollIndex[1] - scrollIndex[0] + 1;
-            Chart.PointD[] points = new Chart.PointD[count];
+            PointD[] points = new PointD[count];
             System.arraycopy(totalCoordPoints, scrollIndex[0], points, 0, count);
             if (points != null && points.length > 0) {
                 scrollX = 0.0f;
@@ -1350,7 +1374,7 @@ public class Chart extends FrameLayout {
             }
             Log.i("Rambo222", "handleScrollEvent startIndex = " + startIndex + ", endIndex = " + endIndex + ", scrollIndex[0] = " + scrollIndex[0] + ", scrollIndex[1] = " + scrollIndex[1]);
             int count = endIndex - startIndex + 1;
-            Chart.PointD[] pointDs = new Chart.PointD[count];
+            PointD[] pointDs = new PointD[count];
             System.arraycopy(totalCoordPoints, startIndex, pointDs, 0, count);
             if (pointDs != null && pointDs.length > 0) {
                 updateCoordPoints(pointDs);

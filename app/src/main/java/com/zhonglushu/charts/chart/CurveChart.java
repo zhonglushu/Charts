@@ -72,7 +72,7 @@ public class CurveChart extends Chart {
                 if (isDoubleMinValue(getCoordPoints()[i].y)) {
                     continue;
                 }
-                x = getChartScrollX() + transXToPosition(getCoordPoints()[i].x);
+                x = getChartScrollX() + transXToChartViewPosition(getCoordPoints()[i].x);
                 y = transYToPosition(getCoordPoints()[i].y);
 
                 if (!moveToFirst) {
@@ -81,7 +81,7 @@ public class CurveChart extends Chart {
                     curvePath.moveTo((float)x, (float)y);
                     gradientPath.moveTo((float)x, (float)y);
                 } else {
-                    lastX = getChartScrollX() + transXToPosition(getCoordPoints()[i - 1].x);
+                    lastX = getChartScrollX() + transXToChartViewPosition(getCoordPoints()[i - 1].x);
                     lastY = transYToPosition(getCoordPoints()[i - 1].y);
 
                     float controlX = (float)((lastX + x) / 2);
@@ -92,13 +92,15 @@ public class CurveChart extends Chart {
             }
             //绘制渐变
             if (drawGradientArea && firstPoint != null && lastPoint != null) {
-                gradientPath.lineTo((float) transXToPosition(getCoordPoints()[length - 1].x), getCoordinate().coord.y);
-                float firstPointX = (float) transXToPosition(getCoordPoints()[0].x);
+                gradientPath.lineTo((float) transXToChartViewPosition(getCoordPoints()[length - 1].x), getCoordinate().coord.y);
+                float firstPointX = (float) transXToChartViewPosition(getCoordPoints()[0].x);
                 float firstPointY = (float) transYToPosition(getCoordPoints()[0].y);
                 gradientPath.lineTo(firstPointX, getCoordinate().coord.y);
                 gradientPath.lineTo(firstPointX, firstPointY);
-                gradientPaint.setShader(new LinearGradient(firstPointX, firstPointY, firstPointX, getCoordinate().coord.y,
-                        gradientColors, new float[]{0.75f, 1.0f}, Shader.TileMode.MIRROR));
+                float maxPointX = (float)transXToChartViewPosition(cyMaxPoint.x);
+                float maxPointY = (float)transXToChartViewPosition(cyMaxPoint.y);
+                gradientPaint.setShader(new LinearGradient(maxPointX, maxPointY, maxPointX, getCoordinate().coord.y,
+                        gradientColors, null, Shader.TileMode.MIRROR));
                 canvas.drawPath(gradientPath, gradientPaint);
             }
             //绘制曲线

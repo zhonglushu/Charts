@@ -27,11 +27,11 @@ public class MainActivity extends AppCompatActivity {
         lineChart.setDrawGradientArea(true);
         //间距margin
         lineChart.setxStartMarginRadio(0.074f);
-        lineChart.setxEndMarginRadio(0.0f);
+        lineChart.setxEndMarginRadio(0.074f);
         lineChart.setyStartMarginRadio(0.2476f);
         lineChart.setyEndMarginRadio(0.0334f);
-        lineChart.getCoordinate().setCxEndSpaceRadio(0.03f);
-        lineChart.getCoordinate().setCxStartSpaceRadio(0.03f);
+        lineChart.getCoordinate().setCxEndSpaceRadio(0.0f);
+        lineChart.getCoordinate().setCxStartSpaceRadio(0.0f);
         //x轴刻度距离原点距离
         lineChart.getCoordinate().setCyTextSpaceRadio(0.088f);
         lineChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
@@ -81,11 +81,11 @@ public class MainActivity extends AppCompatActivity {
         curveChart.setDrawGradientArea(true);
         //间距margin
         curveChart.setxStartMarginRadio(0.074f);
-        curveChart.setxEndMarginRadio(0.0f);
+        curveChart.setxEndMarginRadio(0.074f);
         curveChart.setyStartMarginRadio(0.2476f);
         curveChart.setyEndMarginRadio(0.0334f);
-        curveChart.getCoordinate().setCxEndSpaceRadio(0.03f);
-        curveChart.getCoordinate().setCxStartSpaceRadio(0.03f);
+        curveChart.getCoordinate().setCxEndSpaceRadio(0.0f);
+        curveChart.getCoordinate().setCxStartSpaceRadio(0.0f);
         //x轴刻度距离原点距离
         curveChart.getCoordinate().setCyTextSpaceRadio(0.088f);
         curveChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
@@ -513,44 +513,61 @@ public class MainActivity extends AppCompatActivity {
             defaultBarChart.invalidate();
         }
 
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                Chart.PointD pointD = new Chart.PointD();
-//                pointD.y = 5;
-//                defaultBarChart.updateCoordPoint(pointD, 10);
-//            }
-//        }, 5000);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Chart.PointD pointD = new Chart.PointD();
+                pointD.y = 5;
+                defaultBarChart.updateCoordPoint(pointD, 10);
+            }
+        }, 5000);
     }
 
     //自定义y轴的值
     private String[] caluCyUnitValues(Chart.PointD[] coordiates, double[] range) {
+        new Exception().printStackTrace();
         int count = coordiates.length;
         double minCy = 0.0f;
         double maxCy = Double.MIN_VALUE;
         for (int i = 0; i < count; i++) {
             maxCy = Math.max(maxCy, coordiates[i].y);
         }
-        double delta = (maxCy - minCy) / 3;
-        int value = 0;
-        if (delta < 5) {
-            value = (int)Math.ceil(delta);
-        } else {
-            int decede = (int)delta / 10;
-            int unit = (int)delta % 10;
-            if (unit < 5) {
-                value = decede * 10 + 5;
+        String[] array = new String[4];
+        if (!CommonUtil.isDoubleMinValue(maxCy)) {
+            double delta = (maxCy - minCy) / 3;
+            int value;
+            if (delta < 5) {
+                value = (int)Math.ceil(delta);
             } else {
-                value = (decede + 1) * 10;
+                int decede = (int)delta / 10;
+                int unit = (int)delta % 10;
+                if (unit < 5) {
+                    value = decede * 10 + 5;
+                } else {
+                    value = (decede + 1) * 10;
+                }
+            }
+            array[0] = "0";
+            for(int i = 1; i < array.length; i++) {
+                array[i] = "" + (minCy + value*i);
+            }
+            double temp = Double.valueOf(array[3]);
+            if (temp > 0.0f) {
+                range[0] = minCy;
+                range[1] = temp;
+            }
+            return array;
+        } else {
+            if (CommonUtil.isDoubleMinValue(range[1])) {
+                for (int i = 0; i < 4; i++) {
+                    array[i] = "" + i;
+                }
+                range[0] = minCy;
+                range[1] = Double.valueOf(array[3]);
+                return array;
+            } else {
+                return null;
             }
         }
-        String[] array = new String[4];
-        array[0] = "0";
-        for(int i = 1; i < array.length; i++) {
-            array[i] = "" + (minCy + value*i);
-        }
-        range[0] = minCy;
-        range[1] = Double.valueOf(array[3]);
-        return array;
     }
 }
