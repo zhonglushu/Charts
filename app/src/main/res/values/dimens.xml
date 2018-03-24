@@ -14,4 +14,21 @@
     <dimen name="bar_chart_bar_width">4dp</dimen>
 
     <dimen name="defalut_line_chart_xcoord_textsize">18sp</dimen>
+
+    <dimen name="line_chart_xstart_margin">54dp</dimen>
+    <dimen name="line_chart_xend_margin">54dp</dimen>
+    <dimen name="line_chart_ystart_margin">71dp</dimen>
+    <dimen name="line_chart_yend_margin">9dp</dimen>
+    <dimen name="line_chart_y_text_space">25dp</dimen>
+
+    <dimen name="page_bar_chart_xstart_margin">54dp</dimen>
+    <dimen name="page_bar_chart_xend_margin">54dp</dimen>
+    <dimen name="page_bar_chart_ystart_margin">60dp</dimen>
+    <dimen name="page_bar_chart_yend_margin">60dp</dimen>
+
+    <dimen name="page_bar_chart_xstart_padding">4dp</dimen>
+    <!--<dimen name="page_bar_chart_xend_padding">4dp</dimen>-->
+    <dimen name="page_bar_chart_ystart_padding">6dp</dimen>
+    <!--<dimen name="page_bar_chart_yend_padding">6dp</dimen>-->
+    <dimen name="page_bar_chart_y_text_space">20dp</dimen>
 </resources>

@@ -1,0 +1,9 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+
+    <dimen name="line_chart_xstart_margin">32dp</dimen>
+    <dimen name="line_chart_xend_margin">24dp</dimen>
+
+    <dimen name="page_bar_chart_xstart_margin">32dp</dimen>
+    <dimen name="page_bar_chart_xend_margin">24dp</dimen>
+</resources>

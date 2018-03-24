@@ -360,11 +360,11 @@ public class BarChart extends Chart {
         startX = x - barWidth / 2.0f;
         endX = x + barWidth / 2.0f;
         if (y > getCoordinate().coord.y) {
-            min = getCoordinate().coord.y + getCoordinate().cyStartSpaceRadio * height;
+            min = getCoordinate().coord.y + getCoordinate().cyStartPadding;
             max = y;
         } else {
             min = y;
-            max = getCoordinate().coord.y - getCoordinate().cyStartSpaceRadio * height;
+            max = getCoordinate().coord.y - getCoordinate().cyStartPadding;
         }
         return new RectF((float)startX, (float)min, (float)endX, (float)max);
     }

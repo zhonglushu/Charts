@@ -26,14 +26,12 @@ public class MainActivity extends AppCompatActivity {
         LineChart lineChart = (LineChart) findViewById(R.id.line_chart);
         lineChart.setDrawGradientArea(true);
         //间距margin
-        lineChart.setxStartMarginRadio(0.074f);
-        lineChart.setxEndMarginRadio(0.074f);
-        lineChart.setyStartMarginRadio(0.2476f);
-        lineChart.setyEndMarginRadio(0.0334f);
-        lineChart.getCoordinate().setCxEndSpaceRadio(0.0f);
-        lineChart.getCoordinate().setCxStartSpaceRadio(0.0f);
+        lineChart.setxStartMargin(getResources().getDimension(R.dimen.line_chart_xstart_margin));
+        lineChart.setxEndMargin(getResources().getDimension(R.dimen.line_chart_xstart_margin));
+        lineChart.setyStartMargin(getResources().getDimension(R.dimen.line_chart_ystart_margin));
+        lineChart.setyEndMargin(getResources().getDimension(R.dimen.line_chart_yend_margin));
         //x轴刻度距离原点距离
-        lineChart.getCoordinate().setCyTextSpaceRadio(0.088f);
+        lineChart.getCoordinate().setCyTextSpace(getResources().getDimension(R.dimen.line_chart_y_text_space));
         lineChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
         lineChart.getCoordinate().setCyDirection(Chart.Coordinate.DIRECTION.POSITIVE);
 
@@ -80,14 +78,12 @@ public class MainActivity extends AppCompatActivity {
         CurveChart curveChart = (CurveChart) findViewById(R.id.curve_chart);
         curveChart.setDrawGradientArea(true);
         //间距margin
-        curveChart.setxStartMarginRadio(0.074f);
-        curveChart.setxEndMarginRadio(0.074f);
-        curveChart.setyStartMarginRadio(0.2476f);
-        curveChart.setyEndMarginRadio(0.0334f);
-        curveChart.getCoordinate().setCxEndSpaceRadio(0.0f);
-        curveChart.getCoordinate().setCxStartSpaceRadio(0.0f);
+        curveChart.setxStartMargin(getResources().getDimension(R.dimen.line_chart_xstart_margin));
+        curveChart.setxEndMargin(getResources().getDimension(R.dimen.line_chart_xstart_margin));
+        curveChart.setyStartMargin(getResources().getDimension(R.dimen.line_chart_ystart_margin));
+        curveChart.setyEndMargin(getResources().getDimension(R.dimen.line_chart_yend_margin));
         //x轴刻度距离原点距离
-        curveChart.getCoordinate().setCyTextSpaceRadio(0.088f);
+        curveChart.getCoordinate().setCyTextSpace(getResources().getDimension(R.dimen.line_chart_y_text_space));
         curveChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
         curveChart.getCoordinate().setCyDirection(Chart.Coordinate.DIRECTION.POSITIVE);
 
@@ -133,18 +129,16 @@ public class MainActivity extends AppCompatActivity {
          */
         final BarChart pageBarChart = (BarChart) findViewById(R.id.page_bar_chart);
         //间距margin
-        pageBarChart.setyStartMarginRadio(0.21f);
-        pageBarChart.setyEndMarginRadio(0.21f);
-        pageBarChart.setxEndMarginRadio(0.074f);
-        pageBarChart.setxStartMarginRadio(0.074f);
+        pageBarChart.setxStartMargin(getResources().getDimension(R.dimen.page_bar_chart_xstart_margin));
+        pageBarChart.setxEndMargin(getResources().getDimension(R.dimen.page_bar_chart_xend_margin));
+        pageBarChart.setyStartMargin(getResources().getDimension(R.dimen.page_bar_chart_ystart_margin));
+        pageBarChart.setyEndMargin(getResources().getDimension(R.dimen.page_bar_chart_yend_margin));
         //内补padding
-        pageBarChart.getCoordinate().setCxStartSpaceRadio(0.0065f);
-        pageBarChart.getCoordinate().setCxEndSpaceRadio(0.0065f);//0.0417f
-        pageBarChart.getCoordinate().setCyStartSpaceRadio(0.0232f);
-        pageBarChart.getCoordinate().setCyEndSpaceRadio(0.0f);
+        pageBarChart.getCoordinate().setCxStartPadding(getResources().getDimension(R.dimen.page_bar_chart_xstart_padding));
+        pageBarChart.getCoordinate().setCxEndPadding(getResources().getDimension(R.dimen.page_bar_chart_xstart_padding));//0.0417f
+        pageBarChart.getCoordinate().setCyStartPadding(getResources().getDimension(R.dimen.page_bar_chart_ystart_padding));
         //x轴刻度距离原点距离
-        pageBarChart.getCoordinate().setCyTextSpaceRadio(0.07f);
-        //pageBarChart.getCoordinate().setCyUnitValue(new double[]{1.0f, 2.0f, 3.0f}, 0.0f, 3.0f);
+        pageBarChart.getCoordinate().setCyTextSpace(getResources().getDimension(R.dimen.page_bar_chart_y_text_space));
         pageBarChart.getCoordinate().setCxDirection(BarChart.Coordinate.DIRECTION.NEGATIVE);
         pageBarChart.getCoordinate().setCyDirection(BarChart.Coordinate.DIRECTION.POSITIVE);
         pageBarChart.getCoordinate().setCxReverse(true);
@@ -431,18 +425,16 @@ public class MainActivity extends AppCompatActivity {
          */
         final BarChart defaultBarChart = (BarChart) findViewById(R.id.default_bar_chart);
         //间距margin
-        defaultBarChart.setyStartMarginRadio(0.21f);
-        defaultBarChart.setyEndMarginRadio(0.21f);
-        defaultBarChart.setxEndMarginRadio(0.05f);
-        defaultBarChart.setxStartMarginRadio(0.074f);
+        defaultBarChart.setxStartMargin(getResources().getDimension(R.dimen.page_bar_chart_xstart_margin));
+        defaultBarChart.setxEndMargin(getResources().getDimension(R.dimen.page_bar_chart_xend_margin));
+        defaultBarChart.setyStartMargin(getResources().getDimension(R.dimen.page_bar_chart_ystart_margin));
+        defaultBarChart.setyEndMargin(getResources().getDimension(R.dimen.page_bar_chart_yend_margin));
         //内补padding
-        defaultBarChart.getCoordinate().setCxStartSpaceRadio(0.0065f);
-        defaultBarChart.getCoordinate().setCxEndSpaceRadio(0.0065f);
-        defaultBarChart.getCoordinate().setCyStartSpaceRadio(0.0232f);
-        defaultBarChart.getCoordinate().setCyEndSpaceRadio(0.0f);
+        defaultBarChart.getCoordinate().setCxStartPadding(getResources().getDimension(R.dimen.page_bar_chart_xstart_padding));
+        defaultBarChart.getCoordinate().setCxEndPadding(getResources().getDimension(R.dimen.page_bar_chart_xstart_padding));//0.0417f
+        defaultBarChart.getCoordinate().setCyStartPadding(getResources().getDimension(R.dimen.page_bar_chart_ystart_padding));
         //x轴刻度距离原点距离
-        defaultBarChart.getCoordinate().setCyTextSpaceRadio(0.07f);
-        //defaultBarChart.getCoordinate().setCyUnitValue(new double[]{1.0f, 2.0f, 3.0f}, 0.0f, 3.0f);
+        defaultBarChart.getCoordinate().setCyTextSpace(getResources().getDimension(R.dimen.page_bar_chart_y_text_space));
         defaultBarChart.getCoordinate().setCxDirection(BarChart.Coordinate.DIRECTION.NEGATIVE);
         defaultBarChart.getCoordinate().setCyDirection(BarChart.Coordinate.DIRECTION.POSITIVE);
         defaultBarChart.getCoordinate().setCxReverse(true);

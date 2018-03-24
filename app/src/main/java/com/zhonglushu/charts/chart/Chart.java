@@ -33,13 +33,12 @@ public class Chart extends FrameLayout {
     private Coordinate coordinate;
     //坐标点
     private PointD[] coordPoints;
-    protected float xStartMarginRadio = 0.12f;
-    protected float xEndMarginRadio = 0.12f;
-    protected float yStartMarginRadio = 0.12f;
-    protected float yEndMarginRadio = 0.12f;
+    protected float xStartMargin = 0.0f;
+    protected float xEndMargin = 0.0f;
+    protected float yStartMargin = 0.0f;
+    protected float yEndMargin = 0.0f;
     protected int width;
     protected int height;
-    private float xStartSpace = 0.0f;
     private Path dashPath = new Path();
     private DashPathEffect dashPathEffect = null;
     //保存最高y轴的点，用于绘制渐变的颜色
@@ -175,36 +174,36 @@ public class Chart extends FrameLayout {
         this.emphFunc = emphFunc;
     }
 
-    public float getxStartMarginRadio() {
-        return xStartMarginRadio;
+    public float getxStartMargin() {
+        return xStartMargin;
     }
 
-    public void setxStartMarginRadio(float xStartMarginRadio) {
-        this.xStartMarginRadio = xStartMarginRadio;
+    public void setxStartMargin(float xStartMargin) {
+        this.xStartMargin = xStartMargin;
     }
 
-    public float getxEndMarginRadio() {
-        return xEndMarginRadio;
+    public float getxEndMargin() {
+        return xEndMargin;
     }
 
-    public void setxEndMarginRadio(float xEndMarginRadio) {
-        this.xEndMarginRadio = xEndMarginRadio;
+    public void setxEndMargin(float xEndMargin) {
+        this.xEndMargin = xEndMargin;
     }
 
-    public float getyStartMarginRadio() {
-        return yStartMarginRadio;
+    public float getyStartMargin() {
+        return yStartMargin;
     }
 
-    public void setyStartMarginRadio(float yStartMarginRadio) {
-        this.yStartMarginRadio = yStartMarginRadio;
+    public void setyStartMargin(float yStartMargin) {
+        this.yStartMargin = yStartMargin;
     }
 
-    public float getyEndMarginRadio() {
-        return yEndMarginRadio;
+    public float getyEndMargin() {
+        return yEndMargin;
     }
 
-    public void setyEndMarginRadio(float yEndMarginRadio) {
-        this.yEndMarginRadio = yEndMarginRadio;
+    public void setyEndMargin(float yEndMargin) {
+        this.yEndMargin = yEndMargin;
     }
 
     public float getChartScrollX() {
@@ -296,55 +295,54 @@ public class Chart extends FrameLayout {
     }
 
     private void updateCoord() {
-        xStartSpace = xStartMarginRadio * width;
-        getCoordinate().updateCoord(width, height, xStartMarginRadio, xEndMarginRadio, yStartMarginRadio, yEndMarginRadio);
+        getCoordinate().updateCoord(width, height, xStartMargin, xEndMargin, yStartMargin, yEndMargin);
     }
 
     public float getCoordStartX() {
         if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-            return (xStartMarginRadio + getCoordinate().cxStartSpaceRadio)*width;
+            return xStartMargin + getCoordinate().cxStartPadding;
         } else {
-            return (1.0f - xStartMarginRadio - getCoordinate().cxStartSpaceRadio)*width;
+            return width - xStartMargin - getCoordinate().cxStartPadding;
         }
     }
 
     public float getCoordEndX() {
         if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-            return (1.0f - xEndMarginRadio - getCoordinate().cxEndSpaceRadio)*width;
+            return width - xEndMargin - getCoordinate().cxEndPadding;
         } else {
-            return (xEndMarginRadio + getCoordinate().cxEndSpaceRadio)*width;
+            return xEndMargin + getCoordinate().cxEndPadding;
         }
     }
 
     public float getCoordStartY() {
         if (getCoordinate().cyDirection == Coordinate.DIRECTION.POSITIVE) {
-            return (1.0f - yStartMarginRadio - getCoordinate().cyStartSpaceRadio)*height;
+            return height - yStartMargin - getCoordinate().cyStartPadding;
         } else {
-            return (yStartMarginRadio + getCoordinate().cyStartSpaceRadio)*height;
+            return yStartMargin + getCoordinate().cyStartPadding;
         }
     }
 
     public float getCoordEndY() {
         if (getCoordinate().cyDirection == Coordinate.DIRECTION.POSITIVE) {
-            return (yEndMarginRadio + getCoordinate().cyEndSpaceRadio)*height;
+            return yEndMargin + getCoordinate().cyEndPadding;
         } else {
-            return (1.0f - yEndMarginRadio - getCoordinate().cyEndSpaceRadio)*height;
+            return height - yEndMargin - getCoordinate().cyEndPadding;
         }
     }
 
     public float getMarginStartX() {
         if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-            return xStartMarginRadio * width;
+            return xStartMargin;
         } else {
-            return (1.0f - xStartMarginRadio) * width;
+            return width - xStartMargin;
         }
     }
 
     public float getMarginEndX() {
         if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-            return (1.0f - getCoordinate().cxEndSpaceRadio) * width;
+            return width - getCoordinate().cxEndPadding;
         } else {
-            return xEndMarginRadio * width;
+            return xEndMargin;
         }
     }
 
@@ -377,14 +375,14 @@ public class Chart extends FrameLayout {
     public double transXToChartViewPosition(double x) {
         float startX = getCoordStartX();
         if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-            startX -= xStartMarginRadio * width;
+            startX -= xStartMargin;
             if (getCoordinate().cxReverse) {
                 return startX + (getCoordinate().cxRange[1] - x)*getCoordinate().cxRealUnit;
             } else {
                 return startX + (x - getCoordinate().cxRange[0])*getCoordinate().cxRealUnit;
             }
         } else {
-            startX -= xEndMarginRadio * width;
+            startX -= xEndMargin;
             if (getCoordinate().cxReverse) {
                 return startX  - (getCoordinate().cxRange[1] - x)*getCoordinate().cxRealUnit;
             } else {
@@ -475,12 +473,11 @@ public class Chart extends FrameLayout {
         boolean drawXCoordText = true;
         boolean drawYCoordText = true;
         //第一个刻度值与坐标原点（x,y）的距离
-        float cxStartSpaceRadio = 0.0f;
-        float cyStartSpaceRadio = 0.0f;
-        float cxEndSpaceRadio = 0.0f;
-        float cyEndSpaceRadio = 0.0f;
+        float cxStartPadding = 0.0f;
+        float cyStartPadding = 0.0f;
+        float cxEndPadding = 0.0f;
+        float cyEndPadding = 0.0f;
         //刻度文本与坐标轴的距离
-        float cyTextSpaceRadio = 0.03f;
         float cyTextSpace = 0.0f;
         int cxyTextSize = 30;
         //x轴的坐标值是否从大到小排列
@@ -553,21 +550,21 @@ public class Chart extends FrameLayout {
             }
         }
 
-        public void updateCoord(int width, int height, float xStartRadio, float xEndRadio,
-                                float yStartRadio, float yEndRadio) {
+        public void updateCoord(int width, int height, float xStart, float xEnd,
+                                float yStart, float yEnd) {
             if (cxDirection == DIRECTION.POSITIVE) {
-                coord.x = width * xStartRadio;
+                coord.x = xStart;
             } else {
-                coord.x = (1.0f - xStartRadio)*width;
+                coord.x = width - xStart;
             }
             if(cyDirection == DIRECTION.POSITIVE) {
-                coord.y = (1.0f - yStartRadio)*height;
+                coord.y = height - yStart;
             } else {
-                coord.y = height*yStartRadio;
+                coord.y = yStart;
             }
 
-            lenCx = (1.0f - xStartRadio - xEndRadio - cxStartSpaceRadio - cxEndSpaceRadio)*width;
-            lenCy = (1.0f - yStartRadio - yEndRadio - cyStartSpaceRadio - cyEndSpaceRadio)*height;
+            lenCx = width - xStart - xEnd - cxStartPadding - cxEndPadding;
+            lenCy = height - yStart - yEnd - cyStartPadding - cyEndPadding;
             cxRealUnit = lenCx / (cxRange[1] - cxRange[0]);
             cyRealUnit = lenCy / (cyRange[1] - cyRange[0]);
             if (isCustomCxUnit()) {
@@ -580,8 +577,6 @@ public class Chart extends FrameLayout {
             } else {
                 cyUnit = cyRealUnit;
             }
-
-            cyTextSpace = cyTextSpaceRadio * height;
         }
 
         protected void setCxRange(double min, double max) {
@@ -648,12 +643,8 @@ public class Chart extends FrameLayout {
             this.cxReverse = cxReverse;
         }
 
-        public float getCyTextSpaceRadio() {
-            return cyTextSpaceRadio;
-        }
-
-        public void setCyTextSpaceRadio(float cyTextSpaceRadio) {
-            this.cyTextSpaceRadio = cyTextSpaceRadio;
+        public void setCyTextSpace(float cyTextSpace) {
+            this.cyTextSpace = cyTextSpace;
         }
 
         public boolean isDrawXCoordText() {
@@ -697,20 +688,20 @@ public class Chart extends FrameLayout {
             unitTextPaint.setTextSize(cxyTextSize);
         }
 
-        public void setCxStartSpaceRadio(float cxStartSpaceRadio) {
-            this.cxStartSpaceRadio = cxStartSpaceRadio;
+        public void setCxStartPadding(float cxStartPadding) {
+            this.cxStartPadding = cxStartPadding;
         }
 
-        public void setCyStartSpaceRadio(float cyStartSpaceRadio) {
-            this.cyStartSpaceRadio = cyStartSpaceRadio;
+        public void setCyStartPadding(float cyStartPadding) {
+            this.cyStartPadding = cyStartPadding;
         }
 
-        public void setCxEndSpaceRadio(float cxEndSpaceRadio) {
-            this.cxEndSpaceRadio = cxEndSpaceRadio;
+        public void setCxEndPadding(float cxEndPadding) {
+            this.cxEndPadding = cxEndPadding;
         }
 
-        public void setCyEndSpaceRadio(float cyEndSpaceRadio) {
-            this.cyEndSpaceRadio = cyEndSpaceRadio;
+        public void setCyEndPadding(float cyEndPadding) {
+            this.cyEndPadding = cyEndPadding;
         }
 
         public float getLenCx() {
@@ -959,10 +950,10 @@ public class Chart extends FrameLayout {
             if (coordinate.cxDirection == Coordinate.DIRECTION.POSITIVE &&
                     coordinate.cyDirection == Coordinate.DIRECTION.POSITIVE) {
                 if (coordinate.drawXCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, (1.0f - xEndMarginRadio)*width, coordinate.coord.y, coordinate.unitPaint);
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, width - xEndMargin, coordinate.coord.y, coordinate.unitPaint);
                 }
                 if (coordinate.drawYCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, yEndMarginRadio*height, coordinate.unitPaint);
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, yEndMargin, coordinate.unitPaint);
                 }
                 //绘制刻度
                 if (coordinate.drawYCoordText) {
@@ -972,7 +963,7 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartMargin + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
                             }
                         }
                     } else {
@@ -982,7 +973,7 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format("" + y);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartMargin + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
                             }
                         }
                     }
@@ -991,10 +982,10 @@ public class Chart extends FrameLayout {
             } else if (coordinate.cxDirection == Coordinate.DIRECTION.POSITIVE &&
                     coordinate.cyDirection == Coordinate.DIRECTION.NEGATIVE) {
                 if (coordinate.drawXCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, (1.0f - xEndMarginRadio)*width, coordinate.coord.y, coordinate.unitPaint);
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, width - xEndMargin, coordinate.coord.y, coordinate.unitPaint);
                 }
                 if (coordinate.drawYCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, (1.0f - yEndMarginRadio)*height, coordinate.unitPaint);
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, height - yEndMargin, coordinate.unitPaint);
                 }
                 //绘制刻度
                 if (coordinate.drawYCoordText) {
@@ -1004,7 +995,7 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartMargin + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
                             }
                         }
                     } else {
@@ -1014,7 +1005,7 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format("" + y);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartSpace + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartMargin + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
                             }
                         }
                     }
@@ -1023,10 +1014,10 @@ public class Chart extends FrameLayout {
             } else if (coordinate.cxDirection == Coordinate.DIRECTION.NEGATIVE &&
                     coordinate.cyDirection == Coordinate.DIRECTION.NEGATIVE) {
                 if (coordinate.drawXCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, xEndMarginRadio*width, coordinate.coord.y, coordinate.unitPaint);
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, xEndMargin, coordinate.coord.y, coordinate.unitPaint);
                 }
                 if (coordinate.drawYCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, (1.0f - xEndMarginRadio)*height, coordinate.unitPaint);
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, height - xEndMargin, coordinate.unitPaint);
                 }
                 //绘制刻度
                 if (coordinate.drawYCoordText) {
@@ -1036,7 +1027,7 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x + (xStartMargin - cyRect.width() - 5), (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
                             }
                         }
                     } else {
@@ -1046,7 +1037,7 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format("" + y);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x + (xStartMargin - cyRect.width() - 5), (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
                             }
                         }
                     }
@@ -1054,10 +1045,10 @@ public class Chart extends FrameLayout {
             } else if (coordinate.cxDirection == Coordinate.DIRECTION.NEGATIVE &&
                     coordinate.cyDirection == Coordinate.DIRECTION.POSITIVE) {
                 if (coordinate.drawXCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, xEndMarginRadio*width, coordinate.coord.y, coordinate.unitPaint);
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, xEndMargin, coordinate.coord.y, coordinate.unitPaint);
                 }
                 if (coordinate.drawYCoord) {
-                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, yEndMarginRadio*height, coordinate.unitPaint);
+                    canvas.drawLine(coordinate.coord.x, coordinate.coord.y, coordinate.coord.x, yEndMargin, coordinate.unitPaint);
                 }
                 //绘制刻度
                 if (coordinate.drawYCoordText) {
@@ -1067,14 +1058,14 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format(getCoordinate().cyUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x + (xStartMargin - cyRect.width() - 5), (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
                             }
 
                             if (coordinate.unitDashLine && i != 0) {
                                 coordinate.unitPaint.setPathEffect(dashPathEffect);
                                 dashPath.reset();
                                 dashPath.moveTo(coordinate.coord.x, (float)cy);
-                                dashPath.lineTo(xEndMarginRadio*width, (float)cy);
+                                dashPath.lineTo(xEndMargin, (float)cy);
                                 canvas.drawPath(dashPath, coordinate.unitPaint);
                             }
                         }
@@ -1086,7 +1077,7 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format("" + y);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x + (xStartSpace - cyRect.width() - 5), (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x + (xStartMargin - cyRect.width() - 5), (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
                             }
                         }
                     }
