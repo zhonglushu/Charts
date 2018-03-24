@@ -16,7 +16,7 @@ The charts library for android
 图表的视图主要分为三层：
 
 - x,y轴坐标系(CoordinateView)
-- 图形绘制(ChartView)
+- 坐标点绘制(ChartView)
 - 状态显示(StatusView)
 
 在左右滑动图表时，x轴的文字的位置也需要动态改变，需要实时刷新，因此将坐标系的视图拆分为二，分别为XCoordinateView和YCoordinateView。另外
