@@ -9,15 +9,19 @@ The charts library for android
         defaultBarChart.setxEndMargin(getResources().getDimension(R.dimen.page_bar_chart_xend_margin));
         defaultBarChart.setyStartMargin(getResources().getDimension(R.dimen.page_bar_chart_ystart_margin));
         defaultBarChart.setyEndMargin(getResources().getDimension(R.dimen.page_bar_chart_yend_margin));
+        
         //内补padding
         defaultBarChart.getCoordinate().setCxStartPadding(getResources().getDimension(R.dimen.page_bar_chart_xstart_padding));
-              defaultBarChart.getCoordinate().setCxEndPadding(getResources().getDimension(R.dimen.page_bar_chart_xstart_padding));//0.0417f
+        defaultBarChart.getCoordinate().setCxEndPadding(getResources().getDimension(R.dimen.page_bar_chart_xstart_padding));
         defaultBarChart.getCoordinate().setCyStartPadding(getResources().getDimension(R.dimen.page_bar_chart_ystart_padding));
+        
         //在y轴方向，刻度文字（即x轴文字）距离原点的位置，特殊的业务需求
         defaultBarChart.getCoordinate().setCyTextSpace(getResources().getDimension(R.dimen.page_bar_chart_y_text_space));
+        
         //x、y轴的方向，即象限，向右和向上为正方向
         defaultBarChart.getCoordinate().setCxDirection(BarChart.Coordinate.DIRECTION.NEGATIVE);
         defaultBarChart.getCoordinate().setCyDirection(BarChart.Coordinate.DIRECTION.POSITIVE);
+        
         //一般的需求是x轴数据的大小从原点出发向外部呈现递增，但是也有特殊需求，例如时间，坐标原点可能需要显示最近的时间点
         defaultBarChart.getCoordinate().setCxReverse(true);
         defaultBarChart.getCoordinate().setCxyTextSize(getResources().getDimensionPixelSize(R.dimen.battery_chart_unit_textsize));
