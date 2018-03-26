@@ -15,7 +15,7 @@ The charts library for android
         defaultBarChart.getCoordinate().setCxEndPadding(getResources().getDimension(R.dimen.page_bar_chart_xstart_padding));
         defaultBarChart.getCoordinate().setCyStartPadding(getResources().getDimension(R.dimen.page_bar_chart_ystart_padding));
         
-        //在y轴方向，刻度文字（即x轴文字）距离原点的位置，特殊的业务需求
+        //在y轴方向，刻度文字（即x轴文字）距离原点的位置
         defaultBarChart.getCoordinate().setCyTextSpace(getResources().getDimension(R.dimen.page_bar_chart_y_text_space));
         
         //x、y轴的方向，即象限，向右和向上为正方向
@@ -79,7 +79,7 @@ The charts library for android
                 }
             }
         });
-        //自定义y轴的显示文字，并且通过range数组自定义数据的大小范围，默认的range是坐标点的最大和最小值
+        //自定义y轴的显示文字，并且通过range数组自定义数据的大小范围，默认的range是y轴坐标点的最小和最大值
         defaultBarChart.getCoordinate().setCyUnitValueFunc(new Chart.Coordinate.CustomUnitValueFunc() {
         });
             @Override
