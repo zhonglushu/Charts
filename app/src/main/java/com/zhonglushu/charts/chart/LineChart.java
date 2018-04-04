@@ -127,7 +127,7 @@ public class LineChart extends Chart{
                 gradientPath.lineTo(firstPointX, getCoordinate().coord.y);
                 gradientPath.lineTo(firstPointX, firstPointY);
                 float maxPointX = (float)transXToChartViewPosition(cyMaxPoint.x);
-                float maxPointY = (float)cyMaxPoint.y;
+                float maxPointY = (float)transYToPosition(cyMaxPoint.y);
                 gradientPaint.setShader(new LinearGradient(getChartScrollX() + maxPointX, maxPointY, getChartScrollX() + maxPointX, getCoordinate().coord.y,
                         gradientColors, null, Shader.TileMode.CLAMP));
                 canvas.drawPath(gradientPath, gradientPaint);

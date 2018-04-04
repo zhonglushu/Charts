@@ -340,7 +340,7 @@ public class Chart extends FrameLayout {
 
     public float getMarginEndX() {
         if (getCoordinate().cxDirection == Coordinate.DIRECTION.POSITIVE) {
-            return width - getCoordinate().cxEndPadding;
+            return width - xEndMargin;
         } else {
             return xEndMargin;
         }
@@ -963,7 +963,7 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format(coordinate.cyUnitValue[i]);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartMargin + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartMargin + 5, (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
                             }
                         }
                     } else {
@@ -973,7 +973,7 @@ public class Chart extends FrameLayout {
                             text = coordinate.getCyFormat().format("" + y);
                             if (!TextUtils.isEmpty(text)) {
                                 getTextRound(text, cyRect, coordinate.unitTextPaint);
-                                canvas.drawText(text, coordinate.coord.x - xStartMargin + 5, (float)cy + cyRect.centerY(), coordinate.unitTextPaint);
+                                canvas.drawText(text, coordinate.coord.x - xStartMargin + 5, (float)cy - cyRect.centerY(), coordinate.unitTextPaint);
                             }
                         }
                     }

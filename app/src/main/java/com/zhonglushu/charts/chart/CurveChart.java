@@ -98,7 +98,7 @@ public class CurveChart extends Chart {
                 gradientPath.lineTo(firstPointX, getCoordinate().coord.y);
                 gradientPath.lineTo(firstPointX, firstPointY);
                 float maxPointX = (float)transXToChartViewPosition(cyMaxPoint.x);
-                float maxPointY = (float)cyMaxPoint.y;
+                float maxPointY = (float)transYToPosition(cyMaxPoint.y);
                 gradientPaint.setShader(new LinearGradient(maxPointX, maxPointY, maxPointX, getCoordinate().coord.y,
                         gradientColors, null, Shader.TileMode.MIRROR));
                 canvas.drawPath(gradientPath, gradientPaint);
