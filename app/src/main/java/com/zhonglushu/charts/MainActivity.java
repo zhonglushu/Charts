@@ -30,11 +30,29 @@ public class MainActivity extends AppCompatActivity {
         lineChart.setxEndMargin(getResources().getDimension(R.dimen.line_chart_xstart_margin));
         lineChart.setyStartMargin(getResources().getDimension(R.dimen.line_chart_ystart_margin));
         lineChart.setyEndMargin(getResources().getDimension(R.dimen.line_chart_yend_margin));
+
+        lineChart.getCoordinate().setCxStartPadding(getResources().getDimension(R.dimen.line_chart_xstart_padding));
+        lineChart.getCoordinate().setCxEndPadding(getResources().getDimension(R.dimen.line_chart_xend_padding));
         //x轴刻度距离原点距离
         lineChart.getCoordinate().setCyTextSpace(getResources().getDimension(R.dimen.line_chart_y_text_space));
         lineChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
         lineChart.getCoordinate().setCyDirection(Chart.Coordinate.DIRECTION.POSITIVE);
 
+        lineChart.setDrawCyValue(false);
+        lineChart.setShowStatus(true);
+        lineChart.getStatus().setFormat(new Chart.Status.StatusFormat() {
+            @Override
+            public String format(String cxValue, String cyValue) {
+                double d = Double.valueOf(cyValue);
+                return "" + (int)d + " M";
+            }
+        });
+        lineChart.setEmphFunc(new Chart.EmphasisFunc() {
+            @Override
+            public boolean emphasis(Chart.PointD point) {
+                return true;
+            }
+        });
         lineChart.getCoordinate().setCxReverse(true);
         lineChart.getCoordinate().setCxyTextSize(getResources().getDimensionPixelSize(R.dimen.defalut_line_chart_xcoord_textsize));
         lineChart.getCoordinate().setCxFormat(new LineChart.Coordinate.UnitFormat() {
@@ -48,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public String[] unitValues(Chart.PointD[] pointDs, double[] range) {
                 double minCy = 0.0f;
-                double maxCy = Double.MIN_VALUE;
+                double maxCy = 0.0f;
                 for (int i = 0; i < pointDs.length; i++) {
                     maxCy = Math.max(maxCy, pointDs[i].y);
                 }
@@ -82,11 +100,29 @@ public class MainActivity extends AppCompatActivity {
         curveChart.setxEndMargin(getResources().getDimension(R.dimen.line_chart_xstart_margin));
         curveChart.setyStartMargin(getResources().getDimension(R.dimen.line_chart_ystart_margin));
         curveChart.setyEndMargin(getResources().getDimension(R.dimen.line_chart_yend_margin));
+
+        curveChart.getCoordinate().setCxStartPadding(getResources().getDimension(R.dimen.line_chart_xstart_padding));
+        curveChart.getCoordinate().setCxEndPadding(getResources().getDimension(R.dimen.line_chart_xend_padding));
         //x轴刻度距离原点距离
         curveChart.getCoordinate().setCyTextSpace(getResources().getDimension(R.dimen.line_chart_y_text_space));
         curveChart.getCoordinate().setCxDirection(Chart.Coordinate.DIRECTION.NEGATIVE);
         curveChart.getCoordinate().setCyDirection(Chart.Coordinate.DIRECTION.POSITIVE);
 
+        curveChart.setDrawCyValue(false);
+        curveChart.setShowStatus(true);
+        curveChart.getStatus().setFormat(new Chart.Status.StatusFormat() {
+            @Override
+            public String format(String cxValue, String cyValue) {
+                double d = Double.valueOf(cyValue);
+                return "" + (int)d + " M";
+            }
+        });
+        curveChart.setEmphFunc(new Chart.EmphasisFunc() {
+            @Override
+            public boolean emphasis(Chart.PointD point) {
+                return true;
+            }
+        });
         curveChart.getCoordinate().setCxReverse(true);
         curveChart.getCoordinate().setCxyTextSize(getResources().getDimensionPixelSize(R.dimen.defalut_line_chart_xcoord_textsize));
         curveChart.getCoordinate().setCxFormat(new LineChart.Coordinate.UnitFormat() {
@@ -100,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public String[] unitValues(Chart.PointD[] pointDs, double[] range) {
                 double minCy = 0.0f;
-                double maxCy = Double.MIN_VALUE;
+                double maxCy = 0.0f;
                 for (int i = 0; i < pointDs.length; i++) {
                     maxCy = Math.max(maxCy, pointDs[i].y);
                 }
@@ -150,6 +186,8 @@ public class MainActivity extends AppCompatActivity {
                 return "" + ((long)(value * 100) / 100);
             }
         });
+        pageBarChart.setDrawCyValue(false);
+        pageBarChart.setShowStatus(true);
         pageBarChart.getStatus().setFormat(new BarChart.Status.StatusFormat() {
             @Override
             public String format(String cxValue, String cyValue) {
@@ -310,6 +348,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            @Override
+            public void reset() {
+                cancelFlingAnim();
+            }
+
             private void handleScrollUpEvent(float x) {
                 int count = tempIndex[1] - tempIndex[0] + 1;
                 Chart.PointD[] points = new Chart.PointD[count];
@@ -446,6 +489,8 @@ public class MainActivity extends AppCompatActivity {
                 return "" + ((long)(value * 100) / 100);
             }
         });
+        defaultBarChart.setDrawCyValue(false);
+        defaultBarChart.setShowStatus(true);
         defaultBarChart.getStatus().setFormat(new BarChart.Status.StatusFormat() {
             @Override
             public String format(String cxValue, String cyValue) {
@@ -517,7 +562,6 @@ public class MainActivity extends AppCompatActivity {
 
     //自定义y轴的值
     private String[] caluCyUnitValues(Chart.PointD[] coordiates, double[] range) {
-        new Exception().printStackTrace();
         int count = coordiates.length;
         double minCy = 0.0f;
         double maxCy = Double.MIN_VALUE;

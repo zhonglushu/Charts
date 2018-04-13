@@ -101,7 +101,11 @@ public class CommonUtil {
             for (int i = 0; i < count; i++) {
                 Chart.PointD pointD = new Chart.PointD();
                 pointD.x = c.getTimeInMillis() / 1000;
-                pointD.y = c.get(Calendar.MONTH) + 1;
+                if (i % 2 == 0) {
+                    pointD.y = 0.01;
+                } else {
+                    pointD.y = c.get(Calendar.MONTH) + 1;
+                }
                 coordiates[i] = pointD;
                 c.add(Calendar.DAY_OF_MONTH, 1);
             }
@@ -144,7 +148,11 @@ public class CommonUtil {
         for (int i = count - 1; i >= 0; i--) {
             Chart.PointD pointD = new Chart.PointD();
             pointD.x = c.getTimeInMillis() / 1000;
-            pointD.y = 2 + Math.random() * 5;
+            if (i % 2 == 0) {
+                pointD.y = 2 + Math.random() * 5;
+            } else {
+                pointD.y = 0.01;
+            }
             pointDs[i] = pointD;
             c.add(Calendar.DAY_OF_MONTH, -1);
         }

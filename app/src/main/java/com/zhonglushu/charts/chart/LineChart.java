@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 
 import com.zhonglushu.charts.R;
 
@@ -25,10 +26,17 @@ public class LineChart extends Chart{
     private Paint gradientPaint = new Paint();
     private int[] gradientColors = new int[2];
     private Paint emphPaint = new Paint();
-    private int emphRadius = 3;
+    private int emphRadius;
+    private int selectRadius;
+    private int innerRadius;
+    private int outerRadius;
+    private Paint selectPaint = new Paint();
     private boolean drawGradientArea = false;
-    private boolean drawCyValue = false;
     private Paint cyValuePaint = new Paint();
+    private LineStatus status;
+    private int selectColor;
+    private int innerColor;
+    private int outerColor;
 
     public LineChart(Context context) {
         this(context, null);
@@ -49,6 +57,15 @@ public class LineChart extends Chart{
     }
 
     private void init() {
+        status = new LineStatus(getContext());
+        emphRadius = getResources().getDimensionPixelSize(R.dimen.line_chart_emphis_circle_radius);
+        selectRadius = getResources().getDimensionPixelSize(R.dimen.line_chart_select_circle_radius);
+        innerRadius = getResources().getDimensionPixelSize(R.dimen.line_chart_inner_circle_radius);
+        outerRadius = getResources().getDimensionPixelSize(R.dimen.line_chart_outer_circle_radius);
+        selectColor = getResources().getColor(R.color.line_chart_emph_color);
+        innerColor = getResources().getColor(R.color.line_chart_inner_color);
+        outerColor = getResources().getColor(R.color.line_chart_outer_color);
+
         paint.setFlags(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(getResources().getColor(R.color.line_chart_line_color));
         paint.setStyle(Paint.Style.STROKE);
@@ -60,6 +77,9 @@ public class LineChart extends Chart{
         emphPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         emphPaint.setColor(getResources().getColor(R.color.line_chart_emph_color));
         emphPaint.setAntiAlias(true);
+
+        selectPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        selectPaint.setAntiAlias(true);
 
         gradientColors[0] = getResources().getColor(R.color.curve_chart_gradient_color1);
         gradientColors[1] = getResources().getColor(R.color.curve_chart_gradient_color2);
@@ -111,7 +131,7 @@ public class LineChart extends Chart{
                     canvas.drawCircle((float)x, (float)y, emphRadius, emphPaint);
                 }
                 //绘制y轴的值
-                if (drawCyValue) {
+                if (isDrawCyValue()) {
                     String text = getCoordinate().getCyFormat().format("" + getCoordPoints()[i].y);
                     getTextRound(text, rect, cyValuePaint);
                     float cyValue = (float)y - rect.height() < 0.0f ? 0.0f : (float)y - rect.height();
@@ -138,6 +158,68 @@ public class LineChart extends Chart{
         }
     }
 
+    @Override
+    protected boolean showStatusView(MotionEvent event) {
+        float x = event.getX();
+        float y = event.getY();
+        int count = getCoordPoints().length;
+        double curPointX, curPointY;
+        for (int i = 0; i < count; i++) {
+            if (isDoubleMinValue(getCoordPoints()[i].y)) {
+                continue;
+            }
+            curPointX = transXToPosition(getCoordPoints()[i].x);
+            curPointY = transYToPosition(getCoordPoints()[i].y);
+            if (Math.sqrt((x - curPointX)*(x - curPointX) + (y - curPointY)*(y - curPointY)) < status.radioRadius) {
+                if (i == status.getIndex()) {
+                    hideStatusView(event);
+                } else {
+                    status.setIndex(i);
+                    invalidateStatusView();
+                }
+                return true;
+            }
+        }
+        hideStatusView(event);
+        return false;
+    }
+
+    @Override
+    protected boolean hideStatusView(MotionEvent event) {
+        if (status != null && status.index >= 0) {
+            status.setIndex(-1);
+            invalidateStatusView();
+        }
+        return true;
+    }
+
+    @Override
+    protected void onDrawStatus(Canvas canvas) {
+        super.onDrawStatus(canvas);
+        if (status.index >= 0) {
+            PointD pointD = getCoordPoints()[status.index];
+            status.text = status.getFormat().format(String.valueOf(pointD.x), String.valueOf(pointD.y));
+            Rect rect = new Rect();
+            getTextRound(status.text, rect, status.textPaint);
+            float curPointX = (float)transXToPosition(pointD.x);
+            float curPointY = (float)transYToPosition(pointD.y);
+
+            //outer circle
+            selectPaint.setColor(outerColor);
+            canvas.drawCircle(curPointX, curPointY, outerRadius, selectPaint);
+            //inner circle
+            selectPaint.setColor(innerColor);
+            canvas.drawCircle(curPointX, curPointY, innerRadius, selectPaint);
+            //select circle
+            canvas.drawCircle(curPointX, curPointY, selectRadius, selectPaint);
+            selectPaint.setColor(selectColor);
+
+            status.textRect.left = (int)curPointX - rect.centerX() > 0 ? (int)curPointX - rect.centerX() : 0;
+            status.textRect.top = (int)curPointY - rect.height() > 0 ? (int)curPointY - rect.height() : 0;
+            canvas.drawText(status.text, status.textRect.left, status.textRect.top, status.textPaint);
+        }
+    }
+
     public int getEmphRadius() {
         return emphRadius;
     }
@@ -154,11 +236,21 @@ public class LineChart extends Chart{
         this.drawGradientArea = drawGradientArea;
     }
 
-    public boolean isDrawCyValue() {
-        return drawCyValue;
+    public LineStatus getStatus() {
+        return status;
     }
 
-    public void setDrawCyValue(boolean drawCyValue) {
-        this.drawCyValue = drawCyValue;
+    public static class LineStatus extends Status {
+
+        int radioRadius;
+
+        public LineStatus(Context context) {
+            super(context);
+            radioRadius = context.getResources().getDimensionPixelSize(R.dimen.line_chart_default_touch_radius);
+        }
+
+        public void setRadioRadius(int radioRadius) {
+            this.radioRadius = radioRadius;
+        }
     }
 }

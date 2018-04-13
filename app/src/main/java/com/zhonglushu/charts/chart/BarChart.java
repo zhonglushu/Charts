@@ -8,7 +8,6 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -29,11 +28,11 @@ public class BarChart extends Chart {
     private Path barPath = new Path();
     private int selectColor;
     private int normalColor;
-    private Status status;
     private int statusMarginBottom = 4;
     private int statusRoundRadius = 4;
     private int angleHeight = 8;
     private int angleWidth = 12;
+    private BarStatus status;
     private Path statusPath = new Path();
     private int[] gradientColors = new int[2];
     private InvalidateType currentType = new InvalidateType();
@@ -87,7 +86,7 @@ public class BarChart extends Chart {
         touchPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         touchPaint.setAntiAlias(true);
 
-        status = new Status(context);
+        status = new BarStatus(context);
     }
 
     private void updateRoundRadius() {
@@ -96,16 +95,13 @@ public class BarChart extends Chart {
         }
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
     public void onPause() {
         Log.i("Rambo", "BarChart onPause()");
         if (status != null) {
             status.setIndex(-1);
         }
         resetInvalidateType();
+        reset();
     }
 
     @Override
@@ -316,6 +312,9 @@ public class BarChart extends Chart {
                 super.onDrawChart(canvas);
                 int length = getCoordPoints().length;
                 for (int i = 0; i < length; i++) {
+                    if (isDoubleMinValue(getCoordPoints()[i].y)) {
+                        continue;
+                    }
                     drawRoundRect(canvas, i);
                 }
             }
@@ -324,15 +323,20 @@ public class BarChart extends Chart {
         }
     }
 
+    private boolean needFilterMinValue(double value) {
+        double filterValue = (int)Math.ceil((barWidth * 1.0f / height) * getCoordinate().getLenCy());
+        if (value > Double.MIN_VALUE && value < filterValue) {
+            return true;
+        }
+        return false;
+    }
+
     private void resetInvalidateType() {
         currentType.type = INVALIDATE.ALL;
         currentType.index = -1;
     }
 
     private void drawRoundRect(Canvas canvas, int index) {
-        if (isDoubleMinValue(getCoordPoints()[index].y)) {
-            return;
-        }
         barPath.reset();
         RectF rectF = getPointRect(index);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -361,12 +365,28 @@ public class BarChart extends Chart {
         endX = x + barWidth / 2.0f;
         if (y > getCoordinate().coord.y) {
             min = getCoordinate().coord.y + getCoordinate().cyStartPadding;
-            max = y;
+            if (needFilterMinValue(y - min)) {
+                max = min + barWidth;
+            } else {
+                max = y;
+            }
         } else {
-            min = y;
             max = getCoordinate().coord.y - getCoordinate().cyStartPadding;
+            if (needFilterMinValue(max - y)) {
+                min = max - barWidth;
+            } else {
+                min = y;
+            }
         }
         return new RectF((float)startX, (float)min, (float)endX, (float)max);
+    }
+
+    public BarStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BarStatus status) {
+        this.status = status;
     }
 
     public float getStatusBottom() {
@@ -378,78 +398,22 @@ public class BarChart extends Chart {
         updateRoundRadius();
     }
 
-    public static class Status {
+    public static class BarStatus extends Status {
         Rect rect = new Rect();
-        int index = -1;
-        int textSize;
-        int textColor;
-        String text;
-        Rect textRect = new Rect();
         Paint linePaint = new Paint();
-        Paint textPaint = new Paint();
-        int paddingLeft = 20;
-        int paddingTop = 10;
-        int paddingRight = 20;
-        int paddingBottom = 10;
-        StatusFormat format = new StatusFormat();
+        int paddingLeft;
+        int paddingTop;
+        int paddingRight;
+        int paddingBottom;
 
-        public static class StatusFormat {
-            public String format(String cxValue, String cyValue) {
-                double d = Double.valueOf(cyValue);
-                return "" + (int)d;
-            }
-        }
-
-        public Status(Context context) {
+        public BarStatus(Context context) {
+            super(context);
+            paddingLeft = paddingRight = context.getResources().getDimensionPixelSize(R.dimen.bar_chart_status_padding_h);
+            paddingTop = paddingBottom = context.getResources().getDimensionPixelSize(R.dimen.bar_chart_status_padding_v);
             linePaint.setFlags(Paint.ANTI_ALIAS_FLAG);
             linePaint.setStyle(Paint.Style.STROKE);
             linePaint.setAntiAlias(true);
             linePaint.setColor(context.getResources().getColor(R.color.line_chart_line_color));
-
-            textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-            textPaint.setAntiAlias(true);
-            Typeface typeface = Typeface.create("sans-serif-light", Typeface.NORMAL);
-            textPaint.setTypeface(typeface);
-            textPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.bar_chart_tipbar_textsize));
-            textPaint.setColor(context.getResources().getColor(R.color.line_chart_emph_color));
-        }
-
-        public int getTextSize() {
-            return textSize;
-        }
-
-        public void setTextSize(int textSize) {
-            this.textSize = textSize;
-            textPaint.setTextSize(textSize);
-        }
-
-        public int getTextColor() {
-            return textColor;
-        }
-
-        public void setTextColor(int textColor) {
-            this.textColor = textColor;
-            textPaint.setColor(textColor);
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public void setIndex(int index) {
-            this.index = index;
-        }
-
-        public StatusFormat getFormat() {
-            return format;
-        }
-
-        public void setFormat(StatusFormat format) {
-            this.format = format;
         }
     }
 }

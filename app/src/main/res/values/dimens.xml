@@ -11,7 +11,7 @@
 
     <dimen name="bar_chart_tipbar_textsize">20sp</dimen>
 
-    <dimen name="bar_chart_bar_width">4dp</dimen>
+    <dimen name="bar_chart_bar_width">8dp</dimen>
 
     <dimen name="defalut_line_chart_xcoord_textsize">18sp</dimen>
 
@@ -20,6 +20,16 @@
     <dimen name="line_chart_ystart_margin">71dp</dimen>
     <dimen name="line_chart_yend_margin">9dp</dimen>
     <dimen name="line_chart_y_text_space">25dp</dimen>
+
+    <dimen name="line_chart_xstart_padding">6dp</dimen>
+    <dimen name="line_chart_xend_padding">6dp</dimen>
+
+    <dimen name="line_chart_emphis_circle_radius">2dp</dimen>
+    <dimen name="line_chart_select_circle_radius">3dp</dimen>
+    <dimen name="line_chart_inner_circle_radius">7dp</dimen>
+    <dimen name="line_chart_outer_circle_radius">25dp</dimen>
+    <dimen name="bar_chart_status_padding_h">14dp</dimen>
+    <dimen name="bar_chart_status_padding_v">6dp</dimen>
 
     <dimen name="page_bar_chart_xstart_margin">54dp</dimen>
     <dimen name="page_bar_chart_xend_margin">54dp</dimen>
@@ -31,4 +41,6 @@
     <dimen name="page_bar_chart_ystart_padding">6dp</dimen>
     <!--<dimen name="page_bar_chart_yend_padding">6dp</dimen>-->
     <dimen name="page_bar_chart_y_text_space">20dp</dimen>
+
+    <dimen name="line_chart_default_touch_radius">20dp</dimen>
 </resources>

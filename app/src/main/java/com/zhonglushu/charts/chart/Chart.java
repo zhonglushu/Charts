@@ -63,6 +63,8 @@ public class Chart extends FrameLayout {
         }
     }
     private GestureDetector gestureDetector = null;
+    private boolean drawCyValue = false;
+    private boolean showStatus = false;
 
     public Chart(Context context) {
         super(context);
@@ -120,13 +122,13 @@ public class Chart extends FrameLayout {
     }
 
     public void invalidateStatusView() {
-        if (statusView != null) {
+        if (statusView != null && isShowStatus()) {
             statusView.invalidate();
         }
     }
 
     public void invalidateStatusView(Rect rect) {
-        if (statusView != null) {
+        if (statusView != null && isShowStatus()) {
             statusView.invalidate(rect);
         }
     }
@@ -216,8 +218,8 @@ public class Chart extends FrameLayout {
 
     protected void updateRange() {
         int count = getCoordPoints().length;
-        double minCx = Double.MAX_VALUE, maxCx = Double.MIN_VALUE;
-        double minCy = Double.MAX_VALUE, maxCy = Double.MIN_VALUE;
+        double minCx = Double.MAX_VALUE, maxCx = 0.0f;
+        double minCy = Double.MAX_VALUE, maxCy = 0.0f;
         int index = 0;
         for (int i = 0; i < count; i++) {
             double tempX = getCoordPoints()[i].x;
@@ -448,6 +450,22 @@ public class Chart extends FrameLayout {
         }
     }
 
+    public boolean isDrawCyValue() {
+        return drawCyValue;
+    }
+
+    public void setDrawCyValue(boolean drawCyValue) {
+        this.drawCyValue = drawCyValue;
+    }
+
+    public boolean isShowStatus() {
+        return showStatus;
+    }
+
+    public void setShowStatus(boolean showStatus) {
+        this.showStatus = showStatus;
+    }
+
     public static class Coordinate {
         //坐标原点
         PointF coord = new PointF();
@@ -565,15 +583,31 @@ public class Chart extends FrameLayout {
 
             lenCx = width - xStart - xEnd - cxStartPadding - cxEndPadding;
             lenCy = height - yStart - yEnd - cyStartPadding - cyEndPadding;
-            cxRealUnit = lenCx / (cxRange[1] - cxRange[0]);
-            cyRealUnit = lenCy / (cyRange[1] - cyRange[0]);
+            if (Double.compare(cxRange[1], cxRange[0]) == 0) {
+                cxRealUnit = 0.0f;
+            } else {
+                cxRealUnit = lenCx / (cxRange[1] - cxRange[0]);
+            }
+            if (Double.compare(cyRange[1], cyRange[0]) == 0) {
+                cyRealUnit = 0.0f;
+            } else {
+                cyRealUnit = lenCy / (cyRange[1] - cyRange[0]);
+            }
             if (isCustomCxUnit()) {
-                cxUnit = lenCx / (cxUnitValue.length - 1);
+                if (cxUnitValue.length <= 1) {
+                    cxUnit = 0.0f;
+                } else {
+                    cxUnit = lenCx / (cxUnitValue.length - 1);
+                }
             } else {
                 cxUnit = cxRealUnit;
             }
             if (isCustomCyUnit()) {
-                cyUnit = lenCy / (cyUnitValue.length - 1);
+                if (cyUnitValue.length <= 1) {
+                    cyUnit = 0.0f;
+                } else {
+                    cyUnit = lenCy / (cyUnitValue.length - 1);
+                }
             } else {
                 cyUnit = cyRealUnit;
             }
@@ -1094,14 +1128,6 @@ public class Chart extends FrameLayout {
         return false;
     }
 
-    protected boolean showStatusView(MotionEvent event) {
-        return true;
-    }
-
-    protected boolean hideStatusView(MotionEvent event) {
-        return true;
-    }
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (getCoordPoints() == null || getCoordPoints().length <= 0) {
@@ -1150,14 +1176,16 @@ public class Chart extends FrameLayout {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             Log.i("Rambo", "SimpleOnGestureListener onSingleTapUp");
-            showStatusView(e);
+            if (isShowStatus()) {
+                showStatusView(e);
+            }
             return true;
         }
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             Log.i("Rambo", "SimpleOnGestureListener onScroll");
-            if (inScrollMode) {
+            if (inScrollMode && isShowStatus()) {
                 Chart.this.hideStatusView(e2);
             }
             if (scrollCallback != null) {
@@ -1189,7 +1217,9 @@ public class Chart extends FrameLayout {
         public void onLongPress(MotionEvent e) {
             super.onLongPress(e);
             Log.i("Rambo", "SimpleOnGestureListener onLongPress");
-            showStatusView(e);
+            if (isShowStatus()) {
+                showStatusView(e);
+            }
         }
     };
 
@@ -1201,11 +1231,18 @@ public class Chart extends FrameLayout {
         return scrollIndex;
     }
 
+    public void reset() {
+        if (this.scrollCallback != null) {
+            this.scrollCallback.reset();
+        }
+    }
+
     public interface ScrollCallback {
         void onDownCallback(MotionEvent e);
         void onScrollCallback(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY);
         void onFlingCallback(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY);
         void onUpCallback(MotionEvent e);
+        void reset();
     }
 
     private class DefaultScrollCallback implements ScrollCallback {
@@ -1286,6 +1323,11 @@ public class Chart extends FrameLayout {
                 Log.i("Rambo222", "onUpCallback originDelta = " + originDelta + ", x = " + x + ", downX = " + downX + ", endX = " + endX + ", extra = " + extra);
                 startFlingAnim(x, endX);
             }
+        }
+
+        @Override
+        public void reset() {
+            cancelFlingAnim();
         }
 
         private void handleScrollUpEvent(float x) {
@@ -1429,10 +1471,6 @@ public class Chart extends FrameLayout {
         }
     }
 
-    protected void onDrawStatus(Canvas canvas) {
-
-    }
-
     protected class StatusView extends View {
 
         public StatusView(Context context) {
@@ -1442,7 +1480,89 @@ public class Chart extends FrameLayout {
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-            onDrawStatus(canvas);
+            if (isShowStatus()) {
+                onDrawStatus(canvas);
+            }
+        }
+    }
+
+    protected boolean showStatusView(MotionEvent event) {
+        return false;
+    }
+
+    protected boolean hideStatusView(MotionEvent event) {
+        return false;
+    }
+
+    protected void onDrawStatus(Canvas canvas) {
+
+    }
+
+    public static class Status {
+        int textSize;
+        int textColor;
+        String text;
+        int index = -1;
+        Rect textRect = new Rect();
+        Paint textPaint = new Paint();
+        StatusFormat format = new StatusFormat();
+
+        public static class StatusFormat {
+            public String format(String cxValue, String cyValue) {
+                double d = Double.valueOf(cyValue);
+                return "" + (int)d;
+            }
+        }
+
+        public Status(Context context) {
+            textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+            textPaint.setAntiAlias(true);
+            Typeface typeface = Typeface.create("sans-serif-light", Typeface.NORMAL);
+            textPaint.setTypeface(typeface);
+            textPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.bar_chart_tipbar_textsize));
+            textPaint.setColor(context.getResources().getColor(R.color.line_chart_emph_color));
+        }
+
+        public int getTextSize() {
+            return textSize;
+        }
+
+        public void setTextSize(int textSize) {
+            this.textSize = textSize;
+            textPaint.setTextSize(textSize);
+        }
+
+        public int getTextColor() {
+            return textColor;
+        }
+
+        public void setTextColor(int textColor) {
+            this.textColor = textColor;
+            textPaint.setColor(textColor);
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public StatusFormat getFormat() {
+            return format;
+        }
+
+        public void setFormat(StatusFormat format) {
+            this.format = format;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
         }
     }
 }

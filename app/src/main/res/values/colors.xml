@@ -20,6 +20,8 @@
 
     <color name="line_chart_line_color">#9affffff</color>
     <color name="line_chart_emph_color">#ffffffff</color>
+    <color name="line_chart_inner_color">#30ffffff</color>
+    <color name="line_chart_outer_color">#06ffffff</color>
     <color name="barchart_click_start_color">#ffa0e1e6</color>
     <color name="barchart_click_end_color">#ff00adbc</color>
 </resources>
